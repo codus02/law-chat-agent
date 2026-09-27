@@ -1,0 +1,402 @@
+/*
+ * 모바일 우선. 휴대폰에서는 앱바·탭바 없이 화면 전체를 쓰는 메신저 형태이고,
+ * 1024px 이상에서 왼쪽에 상담 기록을 함께 보여준다.
+ */
+
+.chatPage {
+  height: 100dvh;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  background: #f7f9f7;
+}
+
+/* ───────── 상담 기록 (데스크톱) ───────── */
+
+.chatHistory {
+  display: none;
+}
+
+.newChat {
+  width: 100%;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 28px;
+  border: 1px solid #b9cec0;
+  border-radius: 10px;
+  color: var(--green);
+  background: white;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.historyLabel {
+  margin: 0 10px 8px;
+  color: #91a098;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.historyItem {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 4px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  text-align: left;
+}
+
+.historyItem strong,
+.historyItem small {
+  display: block;
+}
+
+.historyItem strong {
+  font-size: 14px;
+}
+
+.historyItem small {
+  margin-top: 2px;
+  color: var(--subtle);
+  font-size: 12px;
+}
+
+.historyItem.isActive {
+  background: white;
+  box-shadow: 0 3px 12px rgba(29, 62, 48, 0.06);
+}
+
+/* ───────── 대화 영역 ───────── */
+
+.chatMain {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.chatHeader {
+  flex: 0 0 auto;
+  height: var(--app-bar-height);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+}
+
+.iconButton {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 10px;
+  color: #3f4d46;
+  background: transparent;
+}
+
+.iconButton:hover {
+  background: #f0f4f1;
+}
+
+.assistantAvatar,
+.messageAvatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 8px 8px 11px 8px;
+  color: white;
+  background: var(--green);
+  font-weight: 800;
+}
+
+.assistantAvatar {
+  width: 32px;
+  height: 32px;
+  font-size: 14px;
+}
+
+.chatTitle {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.chatTitle h1 {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+.chatTitle small {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chatTitle small i {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 5px;
+  vertical-align: 1px;
+  border-radius: 50%;
+  background: #3da36e;
+}
+
+.messages {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px var(--gutter) 24px;
+}
+
+.message {
+  display: flex;
+  margin: 16px 0;
+}
+
+.messageAvatar {
+  width: 30px;
+  height: 30px;
+  margin-right: 8px;
+  font-size: 13px;
+}
+
+.messageBody {
+  flex: 1;
+  max-width: 680px;
+  min-width: 0;
+}
+
+.messageBubble {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 4px 16px 16px 16px;
+  background: white;
+  box-shadow: 0 6px 18px rgba(29, 61, 49, 0.04);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.messageBubble p {
+  margin: 0;
+}
+
+.introTitle {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 15px;
+}
+
+.messageBubble .introText {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.suggestionChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.suggestionChips button {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid #cfdcd4;
+  border-radius: 999px;
+  color: #3f564b;
+  background: white;
+  font-size: 14px;
+}
+
+.suggestionChips button:hover {
+  border-color: #9dbca9;
+}
+
+.userMessage {
+  justify-content: flex-end;
+}
+
+.userMessage .messageBubble {
+  max-width: 85%;
+  border: 0;
+  border-radius: 16px 4px 16px 16px;
+  color: white;
+  background: var(--green);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.verificationSteps {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 0 0 8px 2px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.verificationSteps i {
+  width: 14px;
+  height: 1px;
+  margin: 0 6px;
+  background: #cbd6d0;
+}
+
+.verificationSteps .done {
+  color: var(--green);
+}
+
+.answerDisclaimer {
+  margin: 8px 2px 0;
+  color: var(--subtle);
+  font-size: 12px;
+}
+
+/* ───────── 입력창 ───────── */
+
+.composerWrap {
+  flex: 0 0 auto;
+  padding: 8px var(--gutter) calc(8px + var(--safe-bottom));
+  border-top: 1px solid var(--line);
+  background: #f7f9f7;
+}
+
+.composer {
+  padding: 8px 8px 8px 14px;
+  border: 1px solid #b8c8be;
+  border-radius: 16px;
+  background: white;
+}
+
+.composer:focus-within {
+  border-color: var(--green);
+}
+
+.composerHint {
+  margin: 2px 0 6px;
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.composer textarea {
+  display: block;
+  width: 100%;
+  max-height: 120px;
+  padding: 4px 0;
+  border: 0;
+  outline: 0;
+  resize: none;
+  color: var(--ink);
+  background: transparent;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.composer textarea::placeholder {
+  color: #9aa59f;
+}
+
+.composerBottom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.attachLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 36px;
+  padding: 0 10px;
+  border-radius: 8px;
+  color: #56665e;
+  background: #f1f4f2;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.charCount {
+  margin-left: auto;
+  color: #9aa39e;
+  font: 500 12px var(--font-latin);
+}
+
+.sendButton {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 10px;
+  color: white;
+  background: var(--green);
+}
+
+.sendButton:disabled {
+  cursor: default;
+  opacity: 0.35;
+}
+
+.composerNotice {
+  margin: 6px 0 0;
+  color: var(--subtle);
+  font-size: 12px;
+  text-align: center;
+}
+
+/* ───────── 태블릿 ───────── */
+
+@media (min-width: 600px) {
+  .chatHeader {
+    padding: 0 16px;
+  }
+
+  .messages,
+  .composerWrap {
+    padding-left: max(var(--gutter), calc((100% - 760px) / 2));
+    padding-right: max(var(--gutter), calc((100% - 760px) / 2));
+  }
+}
+
+/* ───────── 데스크톱 ───────── */
+
+@media (min-width: 1024px) {
+  .chatPage {
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+
+  .chatHistory {
+    display: block;
+    padding: 24px 14px;
+    border-right: 1px solid var(--line);
+    background: #f2f5f2;
+  }
+
+  .chatHeader {
+    height: 68px;
+    padding: 0 28px;
+  }
+
+  /* 사이드바와 상담 기록이 있으므로 헤더의 뒤로가기·새 상담 버튼은 숨긴다. */
+  .headerBack,
+  .headerNewChat {
+    display: none;
+  }
+}

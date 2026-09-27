@@ -1,0 +1,254 @@
+/* ───────── 공통 ───────── */
+
+.appShell {
+  min-height: 100dvh;
+}
+
+.mainContent {
+  min-height: 100dvh;
+  padding-bottom: calc(var(--tab-bar-height) + var(--safe-bottom));
+}
+
+/* 전체 화면을 쓰는 페이지(상담)는 탭바가 없으므로 여백도 두지 않는다. */
+.mainContent:has([data-immersive]) {
+  padding-bottom: 0;
+}
+
+.brandMark {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  color: #fff;
+  background: var(--green);
+  border-radius: 7px 7px 11px 7px;
+  font-size: 15px;
+  font-weight: 800;
+  box-shadow: inset 0 -4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.pulseDot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #38a36e;
+  box-shadow: 0 0 0 3px #d8eee2;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ───────── 휴대폰·태블릿: 상단 앱바 ───────── */
+
+.appBar {
+  position: sticky;
+  z-index: 20;
+  top: 0;
+  height: var(--app-bar-height);
+  padding: 0 var(--gutter);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(223, 229, 225, 0.8);
+  background: rgba(248, 250, 247, 0.92);
+  backdrop-filter: blur(10px);
+}
+
+.appBarBrand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+}
+
+.appBarBrand strong {
+  font-size: 18px;
+  letter-spacing: -0.06em;
+}
+
+.lawChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid #cee0d3;
+  border-radius: 999px;
+  color: #466356;
+  background: white;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ───────── 휴대폰·태블릿: 하단 탭바 ───────── */
+
+.tabBar {
+  position: fixed;
+  z-index: 20;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(var(--tab-bar-height) + var(--safe-bottom));
+  padding-bottom: var(--safe-bottom);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(10px);
+}
+
+.tabItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: #7c8983;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.tabItem.isActive {
+  color: var(--green);
+}
+
+/* ───────── 데스크톱: 사이드바 ───────── */
+
+.sidebar {
+  display: none;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.brand .brandMark {
+  width: 38px;
+  height: 38px;
+  font-size: 18px;
+}
+
+.brandCopy {
+  display: flex;
+  flex-direction: column;
+}
+
+.brandCopy strong {
+  font-size: 22px;
+  line-height: 1.1;
+  letter-spacing: -0.07em;
+}
+
+.brandCopy small {
+  margin-top: 5px;
+  color: #809087;
+  font: 600 9px/1 var(--font-latin);
+  letter-spacing: 0.14em;
+}
+
+.sideNav {
+  margin-top: 56px;
+}
+
+.navLabel {
+  margin: 0 10px 10px;
+  color: #91a098;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 46px;
+  padding: 0 13px;
+  margin-bottom: 4px;
+  border-radius: 10px;
+  color: #5d6b64;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.navItem:hover {
+  background: rgba(255, 255, 255, 0.65);
+}
+
+.navItem.isActive {
+  color: var(--green-deep);
+  background: #fff;
+  box-shadow: 0 5px 18px rgba(31, 74, 55, 0.07);
+}
+
+.navItem.muted {
+  font-size: 14px;
+}
+
+.sidebarBottom {
+  margin-top: auto;
+}
+
+.lawStatus {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid #d8e5dc;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+  color: #56665e;
+}
+
+.lawStatus:hover {
+  border-color: var(--sage);
+}
+
+.statusRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  color: var(--ink);
+}
+
+.lawStatus small {
+  color: var(--subtle);
+  font-size: 12px;
+}
+
+@media (min-width: 1024px) {
+  .appBar,
+  .tabBar {
+    display: none;
+  }
+
+  .mainContent {
+    margin-left: 240px;
+    padding-bottom: 0;
+  }
+
+  .sidebar {
+    position: fixed;
+    z-index: 20;
+    inset: 0 auto 0 0;
+    width: 240px;
+    padding: 34px 22px 24px;
+    display: flex;
+    flex-direction: column;
+    background: #f1f6f1;
+    border-right: 1px solid #dbe4dc;
+  }
+}
