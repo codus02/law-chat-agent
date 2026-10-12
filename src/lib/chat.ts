@@ -1,6 +1,6 @@
 /**
- * 상담 답변은 결론 → 적용 조건 → 근거 → 확인 질문·다음 행동 순서의 결과 카드로 보여준다.
- * (plot.md「차별화 후보」의 결과 카드 구조)
+ * 상담 답변은 적법·권리침해 여부 / 법적 근거 / 대응 방법으로 구분한다.
+ * 추가 확인 질문과 원문 출처를 함께 보여준다.
  */
 export type AnswerSource = {
   id: number;
@@ -33,14 +33,45 @@ export type Answer = {
   sources: AnswerSource[];
 };
 
+import type { Category, CategoryId } from './categories';
+import type { IssueId } from './intake';
 import type { AnswerResult } from './rag-client';
 
 export type ChatMessage =
-  | { id: string; role: 'user'; text: string }
+  | { id: string; role: 'user'; text: string; category?: CategoryId }
+  /** 첫 화면: 상담 유형 선택 */
   | { id: string; role: 'assistant'; kind: 'intro' }
+  /** 유형을 고른 뒤 상황을 자유롭게 적도록 안내 */
+  | { id: string; role: 'assistant'; kind: 'category-prompt'; category: Category }
+  /** 질문만으로 점검할 쟁점이 하나로 정해지지 않을 때 고르게 한다 */
+  | {
+      id: string;
+      role: 'assistant';
+      kind: 'issue-pick';
+      question: string;
+      category: CategoryId;
+      issues: IssueId[];
+      chosen?: IssueId;
+    }
+  /** 사실 확인 점검: 부족한 값만 묻고, 확인된 값으로 판정한다 */
+  | {
+      id: string;
+      role: 'assistant';
+      kind: 'fact-check';
+      question: string;
+      category: CategoryId;
+      issue: IssueId;
+    }
   | { id: string; role: 'assistant'; kind: 'answer'; answer: Answer }
   | { id: string; role: 'assistant'; kind: 'rag-answer'; answer: AnswerResult }
-  | { id: string; role: 'assistant'; kind: 'error'; text: string; question: string }
+  | {
+      id: string;
+      role: 'assistant';
+      kind: 'error';
+      text: string;
+      question: string;
+      category?: CategoryId;
+    }
   | { id: string; role: 'assistant'; kind: 'pending' };
 
 export type ChatHistoryItem = { id: string; title: string; dateLabel: string };

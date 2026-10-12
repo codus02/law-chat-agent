@@ -5,12 +5,14 @@ import { useRef, useState } from 'react';
 import { Icon } from '@/components/common/Icon';
 import { MAX_MESSAGE_LENGTH } from '@/lib/chat';
 import { cx } from '@/lib/cx';
+import { categoryForTopic } from '@/lib/categories';
 import { DEFAULT_HINT, SITUATIONS, type Situation } from '@/lib/situations';
 import styles from './home.module.css';
 
 /**
  * 홈에서 바로 상담을 시작하는 입력창.
  * 제출하면 /chat?q=... 로 이동해 입력한 내용으로 상담을 시작한다.
+ * 상황 칩을 골랐다면 대응하는 상담 유형(c=)도 함께 넘겨 상담 화면의 유형 선택을 건너뛴다.
  */
 export function QuestionStarter() {
   const [text, setText] = useState('');
@@ -33,6 +35,7 @@ export function QuestionStarter() {
         <label className={styles.visuallyHidden} htmlFor="home-question">
           지금 겪는 상황
         </label>
+        {selected && <input type="hidden" name="c" value={categoryForTopic(selected.topic).id} />}
         <textarea
           id="home-question"
           ref={inputRef}

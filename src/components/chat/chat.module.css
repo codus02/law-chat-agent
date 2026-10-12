@@ -40,6 +40,26 @@
   letter-spacing: 0.1em;
 }
 
+.historyCategory {
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  border: 1px solid #cfdcd4;
+  border-radius: 10px;
+  background: var(--green-pale);
+}
+
+.historyCategory small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.historyCategory strong {
+  color: var(--green-deep);
+  font-size: 14px;
+}
+
 .historyItem {
   width: 100%;
   padding: 10px 12px;
@@ -227,6 +247,76 @@
   border-color: #9dbca9;
 }
 
+/* ───────── 첫 화면: 상담 유형 선택 ───────── */
+
+.categoryList {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.categoryButton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 10px 14px;
+  border: 1px solid #cfdcd4;
+  border-radius: 12px;
+  background: white;
+  text-align: left;
+  transition:
+    border-color 0.15s,
+    background-color 0.15s;
+}
+
+.categoryButton:hover:not(:disabled) {
+  border-color: #9dbca9;
+  background: #fbfdfb;
+}
+
+.categoryButton:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.categoryButton.isSelected {
+  border-color: var(--green);
+  background: var(--green-pale);
+  opacity: 1;
+}
+
+.categoryText {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.categoryText strong {
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.categoryText small {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.categoryCheck {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  color: white;
+  background: var(--green);
+}
+
 .userMessage {
   justify-content: flex-end;
 }
@@ -292,6 +382,10 @@
   color: var(--green);
   font-size: 13px;
   font-weight: 600;
+}
+
+.composer textarea:disabled {
+  cursor: default;
 }
 
 .composer textarea {
@@ -366,6 +460,10 @@
 @media (min-width: 600px) {
   .chatHeader {
     padding: 0 16px;
+  }
+
+  .categoryList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .messages,

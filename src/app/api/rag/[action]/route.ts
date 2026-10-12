@@ -2,12 +2,18 @@ import type { NextRequest } from 'next/server';
 
 export const runtime = 'nodejs';
 
-// Includes cold model loading on a CPU. Ollama's read timeout is 240 seconds.
-const TIMEOUT_MS = 300_000;
+// 사실 확인(intake)과 검색은 규칙·색인만 쓰므로 수십 ms 안에 끝난다.
+// 생성 답변(answer)은 CPU에서 모델을 처음 불러올 때 수 분이 걸릴 수 있다.
+const TIMEOUT_MS: Record<string, number> = {
+  answer: 300_000,
+  search: 30_000,
+  intake: 30_000,
+};
 
 export async function POST(request: NextRequest, context: RouteContext<'/api/rag/[action]'>) {
   const { action } = await context.params;
-  if (action !== 'answer' && action !== 'search') {
+  const timeoutMs = TIMEOUT_MS[action];
+  if (!timeoutMs) {
     return Response.json({ detail: '지원하지 않는 요청입니다.' }, { status: 404 });
   }
 
@@ -19,7 +25,7 @@ export async function POST(request: NextRequest, context: RouteContext<'/api/rag
   }
 
   const baseUrl = (process.env.RAG_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, '');
-  const timeout = AbortSignal.timeout(TIMEOUT_MS);
+  const timeout = AbortSignal.timeout(timeoutMs);
   try {
     const upstream = await fetch(`${baseUrl}/api/rag/${action}`, {
       method: 'POST',
@@ -41,7 +47,10 @@ export async function POST(request: NextRequest, context: RouteContext<'/api/rag
       );
     }
     return Response.json(
-      { detail: '상담 서버에 연결할 수 없어요. 로컬 실행 스크립트가 실행 중인지 확인해 주세요.' },
+      {
+        detail:
+          '상담 서버(127.0.0.1:8000)에 연결할 수 없어요. 프로젝트 루트에서 scripts/start_local.ps1을 실행했는지 확인해 주세요.',
+      },
       { status: 503 },
     );
   }
