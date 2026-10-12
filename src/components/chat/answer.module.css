@@ -42,6 +42,18 @@
   padding: 14px 16px 0;
 }
 
+.answerSection {
+  padding: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.sectionTitle {
+  margin: 0 0 8px;
+  color: var(--green-deep);
+  font-size: 15px;
+  font-weight: 700;
+}
+
 .blockLabel {
   margin: 0 0 6px;
   color: var(--green);

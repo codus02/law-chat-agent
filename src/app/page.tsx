@@ -54,11 +54,18 @@ export default function HomePage() {
           </div>
           <div className={styles.contractCard}>
             <p>
-              시급·근무 요일·휴게시간을 적으면 최저임금과 휴게시간 기준에 맞는지, 빠진 조건은 없는지
-              바로 알려드려요.
+              고용노동부 표준 양식을 참고해 근로계약서를 작성하거나, 시급·근무 요일·휴게시간 등
+              근로조건을 점검해 보세요.
             </p>
             <div className={styles.contractActions}>
-              <Link className={styles.primaryAction} href="/contract">
+              <Link
+                className={`${styles.primaryAction} ${styles.writeAction}`}
+                href="/contract?tab=write"
+              >
+                <Icon name="edit" size={18} />
+                근로계약서 작성
+              </Link>
+              <Link className={styles.secondaryAction} href="/contract">
                 <Icon name="edit" size={18} />
                 조건 직접 입력
               </Link>

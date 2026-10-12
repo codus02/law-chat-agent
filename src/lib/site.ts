@@ -38,7 +38,7 @@ export type NavItem = { href: string; label: string; shortLabel: string; icon: N
 
 export const MAIN_NAV: NavItem[] = [
   { href: '/', label: '서비스 홈', shortLabel: '홈', icon: 'home' },
-  { href: '/contract', label: '근로계약 점검', shortLabel: '계약 점검', icon: 'contract' },
+  { href: '/contract', label: '근로계약 작성·점검', shortLabel: '근로계약', icon: 'contract' },
   { href: '/chat', label: '노동법 상담', shortLabel: '상담', icon: 'chat' },
 ];
 

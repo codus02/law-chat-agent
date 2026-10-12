@@ -21,13 +21,23 @@ export function RagAnswerCard({
       <div className={styles.status}>
         <strong>{LABELS[answer.status]}</strong>
       </div>
+      {answer.sections.map((section) => (
+        <section className={styles.answerSection} key={section.key} data-answer-section={section.key}>
+          <h3 className={styles.sectionTitle}>{section.title}</h3>
+          <p className={styles.ragText}>{section.text}</p>
+        </section>
+      ))}
       <div className={styles.block}>
-        <p className={styles.blockLabel}>답변</p>
-        <p className={styles.ragText}>{answer.answer}</p>
         <p className={styles.metadata}>
           자료 기준일 {answer.as_of_date} · 검색 근거 {answer.sources.length}건
         </p>
       </div>
+      {answer.experimental_answer && (
+        <details className={styles.sources}>
+          <summary className={styles.sourcesTitle}>검증되지 않은 실험 원문</summary>
+          <p className={styles.block}>{answer.experimental_answer}</p>
+        </details>
+      )}
       {answer.follow_up_questions.length > 0 && (
         <div className={styles.followUp}>
           <p className={styles.blockLabel}>추가로 확인할 내용</p>

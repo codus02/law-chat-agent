@@ -17,7 +17,7 @@ function Citations({ ids }: { ids: number[] }) {
 
 type AnswerCardProps = {
   answer: Answer;
-  /** 홈 미리보기용: 다음 행동을 생략하고 근거는 첫 건만 보여준다. */
+  /** 홈 미리보기용: 대응 방법과 근거는 첫 건만 보여준다. */
   compact?: boolean;
   /** 확인 질문의 선택지를 눌렀을 때. 없으면 선택지를 표시만 한다. */
   onSelect?: (text: string) => void;
@@ -49,7 +49,7 @@ export function AnswerCard({ answer, compact = false, onSelect }: AnswerCardProp
       </div>
 
       <div className={styles.block}>
-        <p className={styles.blockLabel}>결론</p>
+        <h3 className={styles.sectionTitle}>① 적법·권리침해 여부</h3>
         <p className={styles.conclusion}>
           <mark>{answer.conclusion}</mark>
           <Citations ids={answer.conclusionCitations} />
@@ -57,6 +57,7 @@ export function AnswerCard({ answer, compact = false, onSelect }: AnswerCardProp
       </div>
 
       <div className={styles.block}>
+        <h3 className={styles.sectionTitle}>② 법적 근거</h3>
         <p className={styles.blockLabel}>적용 조건</p>
         <ul className={styles.conditions}>
           {answer.conditions.map((condition) => (
@@ -100,16 +101,18 @@ export function AnswerCard({ answer, compact = false, onSelect }: AnswerCardProp
         </div>
       )}
 
-      {!compact && answer.nextSteps.length > 0 && (
-        <div className={styles.block}>
-          <p className={styles.blockLabel}>다음에 할 수 있는 일</p>
+      <div className={styles.block}>
+        <h3 className={styles.sectionTitle}>③ 대응 방법</h3>
+        {answer.nextSteps.length > 0 ? (
           <ol className={styles.nextSteps}>
-            {answer.nextSteps.map((step) => (
+            {(compact ? answer.nextSteps.slice(0, 1) : answer.nextSteps).map((step) => (
               <li key={step}>{step}</li>
             ))}
           </ol>
-        </div>
-      )}
+        ) : (
+          <p className={styles.ragText}>대응 방법은 추가 확인이 필요합니다.</p>
+        )}
+      </div>
 
       {compact ? (
         <div className={styles.sources}>

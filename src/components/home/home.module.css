@@ -210,6 +210,10 @@
   margin-top: 14px;
 }
 
+.writeAction {
+  grid-column: 1 / -1;
+}
+
 .primaryAction,
 .secondaryAction {
   display: inline-flex;
