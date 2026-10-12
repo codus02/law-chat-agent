@@ -30,7 +30,7 @@ export const HOTLINE = { name: '고용노동부 고객상담센터', number: '13
 export const LEGAL_NOTICE =
   '로바로는 법률 정보를 제공하며, 변호사·노무사의 법률 자문을 대체하지 않습니다.';
 
-export const DEMO_NOTICE = '현재 상담 답변과 계약서 분석 결과는 시연용 예시입니다.';
+export const DEMO_NOTICE = '상담 판정과 계약서 점검은 전문가 검토를 거치지 않은 참고 정보입니다.';
 
 export type NavIcon = 'home' | 'contract' | 'chat' | 'info';
 
@@ -38,7 +38,7 @@ export type NavItem = { href: string; label: string; shortLabel: string; icon: N
 
 export const MAIN_NAV: NavItem[] = [
   { href: '/', label: '서비스 홈', shortLabel: '홈', icon: 'home' },
-  { href: '/contract', label: '근로계약 작성·점검', shortLabel: '근로계약', icon: 'contract' },
+  { href: '/contract', label: '근로계약서 작성·점검', shortLabel: '계약서', icon: 'contract' },
   { href: '/chat', label: '노동법 상담', shortLabel: '상담', icon: 'chat' },
 ];
 

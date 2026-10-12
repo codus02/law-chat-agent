@@ -1,0 +1,653 @@
+/* 근로계약서 작성·점검 한 화면. 모바일 우선, 1024px 이상에서 폼 옆에 결과 요약을 고정한다. */
+
+.studio {
+  margin-top: 16px;
+}
+
+/* ───── 탭 ───── */
+
+.tabs {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.tab {
+  display: grid;
+  gap: 2px;
+  padding: 12px 14px;
+  border: 1px solid #cfdcd4;
+  border-radius: 14px;
+  background: white;
+  text-align: left;
+}
+
+.tab strong {
+  font-size: 15px;
+}
+
+.tab small {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.tab.isActive {
+  border-color: var(--green);
+  background: var(--green-pale);
+  box-shadow: inset 0 0 0 1px var(--green);
+}
+
+/* ───── 폼 ───── */
+
+.formLayout {
+  display: grid;
+  gap: 16px;
+}
+
+.form {
+  display: grid;
+  gap: 12px;
+}
+
+.importedNote {
+  padding: 12px 14px;
+  border: 1px solid #cfe3d6;
+  border-radius: 12px;
+  background: #f1f8f3;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.importedNote button {
+  margin-left: 8px;
+  padding: 2px 10px;
+  border: 1px solid #b9cec0;
+  border-radius: 999px;
+  background: white;
+  font-size: 13px;
+}
+
+.section {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-left: 4px solid #d9e3dd;
+  border-radius: 14px;
+  background: white;
+}
+
+.sectionDanger {
+  border-left-color: var(--danger);
+}
+
+.sectionWarning {
+  border-left-color: #d9a21b;
+}
+
+.sectionOk {
+  border-left-color: var(--green);
+}
+
+.section header {
+  margin-bottom: 10px;
+}
+
+.section h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.section header p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.section header a {
+  color: var(--green);
+  font-weight: 600;
+}
+
+.grid {
+  display: grid;
+  gap: 10px;
+}
+
+.grid label,
+.dailyHours label,
+.pasteBox {
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #3f4d46;
+}
+
+.grid input,
+.grid select,
+.dailyHours input,
+.pasteBox textarea {
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid #c3d2c9;
+  border-radius: 10px;
+  background: white;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 400;
+}
+
+.pasteBox textarea {
+  padding: 10px 12px;
+  line-height: 1.55;
+  resize: vertical;
+}
+
+.grid input:focus,
+.grid select:focus,
+.dailyHours input:focus,
+.pasteBox textarea:focus {
+  border-color: var(--green);
+  outline: 0;
+}
+
+.grid input:disabled {
+  background: #f3f5f4;
+  color: var(--subtle);
+}
+
+.check {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-height: 40px;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.check input {
+  width: 18px;
+  height: 18px;
+  margin-top: 3px;
+  accent-color: var(--green);
+}
+
+.check span {
+  display: grid;
+}
+
+.check small {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  min-width: 40px;
+  min-height: 38px;
+  padding: 0 12px;
+  border: 1px solid #cfdcd4;
+  border-radius: 999px;
+  background: white;
+  font-size: 14px;
+}
+
+.chip.isOn {
+  border-color: var(--green);
+  color: var(--green-deep);
+  background: var(--green-pale);
+  font-weight: 700;
+}
+
+.dailyHours {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.derived {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.derived strong {
+  color: var(--green-deep);
+}
+
+.confirmList {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ───── 점검 항목 ───── */
+
+.findings {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.finding {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f4f8f5;
+  font-size: 14px;
+}
+
+.finding strong {
+  display: block;
+  font-size: 14px;
+}
+
+.finding p {
+  margin: 2px 0 0;
+  color: #3d4b44;
+  line-height: 1.55;
+}
+
+.finding small {
+  display: block;
+  margin-top: 4px;
+  color: var(--subtle);
+  font-size: 12px;
+}
+
+.findingTone {
+  align-self: start;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.finding.danger {
+  background: #fbeeeb;
+}
+
+.finding.danger .findingTone {
+  color: white;
+  background: var(--danger);
+}
+
+.finding.warning {
+  background: #fdf7e9;
+}
+
+.finding.warning .findingTone {
+  color: #5d4a14;
+  background: var(--yellow);
+}
+
+.finding.info {
+  background: #eef3f8;
+}
+
+.finding.info .findingTone {
+  color: #2f4a66;
+  background: #d6e3f1;
+}
+
+.finding.ok {
+  background: var(--green-pale);
+}
+
+.finding.ok .findingTone {
+  color: white;
+  background: var(--green);
+}
+
+/* ───── 요약 ───── */
+
+.summary {
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: white;
+  box-shadow: var(--shadow);
+}
+
+.summaryHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.summaryHead strong {
+  font-size: 15px;
+}
+
+.summaryHead small {
+  color: var(--subtle);
+  font-size: 12px;
+}
+
+.counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0;
+}
+
+.counts span {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.counts .danger {
+  color: #7a2d22;
+  background: #fbeeeb;
+}
+
+.counts .warning {
+  color: #5d4a14;
+  background: #fdf3d6;
+}
+
+.counts .ok {
+  color: var(--green-deep);
+  background: var(--green-pale);
+}
+
+.summaryList {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.summaryList li {
+  display: grid;
+  padding: 8px 10px;
+  border-left: 3px solid #d9e3dd;
+  border-radius: 0 8px 8px 0;
+  background: #f7faf8;
+  font-size: 13px;
+}
+
+.summaryList li.danger {
+  border-left-color: var(--danger);
+}
+
+.summaryList li.warning {
+  border-left-color: #d9a21b;
+}
+
+.summaryList li.ok {
+  border-left-color: var(--green);
+}
+
+.summaryList small {
+  color: var(--subtle);
+  font-size: 11px;
+}
+
+.previewButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 42px;
+  width: 100%;
+  justify-content: center;
+  margin-top: 12px;
+  border: 1px solid #b9cec0;
+  border-radius: 10px;
+  color: var(--green-deep);
+  background: white;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.summaryNote {
+  margin: 10px 0 0;
+  color: var(--subtle);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.summaryNote a {
+  color: var(--green);
+}
+
+/* ───── 미리보기 ───── */
+
+.preview {
+  grid-column: 1 / -1;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fffdf7;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.preview h3 {
+  margin: 0 0 10px;
+  font-size: 17px;
+  text-align: center;
+}
+
+.preview ol {
+  padding-left: 20px;
+}
+
+.preview li + li {
+  margin-top: 4px;
+}
+
+.preview small {
+  color: var(--subtle);
+}
+
+/* ───── 올리기 ───── */
+
+.upload {
+  display: grid;
+  gap: 16px;
+}
+
+.uploadIntro h2 {
+  margin: 0;
+  font-size: 19px;
+  letter-spacing: -0.03em;
+}
+
+.uploadIntro p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.uploadGrid {
+  display: grid;
+  gap: 12px;
+}
+
+.dropZone {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 26px 16px;
+  border: 1.5px dashed #b8c8be;
+  border-radius: 16px;
+  background: white;
+  text-align: center;
+  cursor: pointer;
+}
+
+.dropZone.isDragging {
+  border-color: var(--green);
+  background: var(--green-pale);
+}
+
+.dropIcon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  color: var(--green);
+  background: var(--green-pale);
+}
+
+.dropZone strong {
+  font-size: 15px;
+}
+
+.dropZone small {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.pasteBox button {
+  min-height: 42px;
+  border: 0;
+  border-radius: 10px;
+  color: white;
+  background: var(--green);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.pasteBox button:disabled {
+  opacity: 0.4;
+}
+
+.uploadError {
+  margin: 0;
+  padding: 10px 12px;
+  border-left: 3px solid var(--danger);
+  border-radius: 0 10px 10px 0;
+  background: #fbf0ee;
+  font-size: 14px;
+}
+
+.parsed {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: white;
+}
+
+.parsed header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.parsed header strong,
+.parsed header small {
+  display: block;
+}
+
+.parsed header small {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.applyButton {
+  min-height: 42px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 10px;
+  color: white;
+  background: var(--green);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.foundList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 6px 12px;
+  margin: 0;
+}
+
+.foundList div {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 6px;
+  padding: 6px 0;
+  border-bottom: 1px solid #eef2ef;
+  font-size: 13px;
+}
+
+.foundList dt {
+  color: var(--muted);
+}
+
+.foundList dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.rawText {
+  margin-top: 12px;
+  font-size: 13px;
+}
+
+.rawText summary {
+  min-height: 36px;
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.rawText pre {
+  max-height: 260px;
+  overflow: auto;
+  padding: 10px;
+  border-radius: 8px;
+  background: #f4f6f5;
+  white-space: pre-wrap;
+  font-size: 12px;
+}
+
+/* ───── 태블릿 이상 ───── */
+
+@media (min-width: 600px) {
+  .tabs,
+  .uploadGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 1024px) {
+  .formLayout {
+    grid-template-columns: minmax(0, 1fr) 300px;
+    align-items: start;
+  }
+
+  .summary {
+    position: sticky;
+    top: 24px;
+  }
+}

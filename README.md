@@ -2,7 +2,7 @@
 
 이 저장소는 전체 `gp` 프로젝트 중 `fe` 폴더를 관리합니다. 저장소를 단독으로 내려받았다면 저장소 루트에서 `npm ci`, `npm run dev`를 실행하세요. Python RAG 백엔드·법령 데이터·Ollama 모델·통합 실행 스크립트는 이 저장소에 포함되어 있지 않습니다. 실제 채팅에는 별도로 실행한 RAG API가 필요하며 `.env.example`의 `RAG_API_URL`로 연결합니다. 아래 `gp` 기준 경로와 명령은 전체 프로젝트를 함께 사용하는 로컬 환경용입니다.
 
-`prototype/`의 HTML 화면을 Next.js(App Router) + TypeScript로 옮긴 프론트엔드입니다. `/chat`은 실제 로컬 RAG API와 연결되어 답변·검색 근거·원문 인용·공식 출처·자료 기준일을 표시합니다. 홈 미리보기와 계약서 업로드 분석은 기존 예시 데이터를 사용합니다.
+`prototype/`의 HTML 화면을 Next.js(App Router) + TypeScript로 옮긴 프론트엔드입니다. `/chat`은 실제 로컬 RAG API와 연결되어 답변·검색 근거·원문 인용·공식 출처·자료 기준일을 표시합니다. 계약서 올리기는 브라우저 안에서 본문을 읽어 실제로 점검합니다.
 
 ## 2026-10-12 사실 확인 점검
 
@@ -72,9 +72,8 @@ npm run dev
 | 경로                   | 화면                                       | prototype 대응 |
 | ---------------------- | ------------------------------------------ | -------------- |
 | `/`                    | 서비스 홈                                  | `#home`        |
-| `/contract`            | 근로계약 점검                              | `#contract`    |
-| `/contract?tab=write`  | 표준근로계약서 항목 작성·미리보기          | -              |
-| `/contract?tab=upload` | 근로계약 점검 - 계약서 올리기              | -              |
+| `/contract`            | 근로계약서 작성·점검 (표준근로계약서 항목 + 조건부 점검) | `#contract`    |
+| `/contract?tab=upload` | 받은 계약서 올리기·붙여넣기 → 같은 기준으로 점검      | -              |
 | `/chat`                | 노동법 상담                                | `#chat`        |
 | `/chat?q=질문`         | 홈에서 입력한 질문으로 상담 시작           | -              |
 | `/chat?q=질문&c=유형`  | 홈의 상황 칩에 대응하는 유형으로 바로 시작 | -              |
@@ -91,10 +90,13 @@ src/
 │  ├─ layout/              상단 앱바·하단 탭바(휴대폰), 사이드바(데스크톱)
 │  ├─ common/              아이콘, 토스트, 제목 등 공용 조각
 │  ├─ home/                홈 상황 입력창·상황 칩
-│  ├─ contract/            근로조건 점검 폼, 계약서 작성·업로드
+│  ├─ contract/            근로계약서 작성·점검 한 화면(ContractStudio/Form/Upload)
 │  └─ chat/                상담 화면, 메시지, 답변 결과 카드
 ├─ lib/
-│  ├─ contract-check.ts    근로조건 판단 로직 (최저임금·휴게시간 등, 순수 함수)
+│  ├─ contract-check.ts    최저임금·요일 상수
+│  ├─ contract-draft.ts    표준근로계약서 초안 타입과 조건부 점검(checkDraft)
+│  ├─ contract-parse.ts    계약서 본문 텍스트 → 초안 (표준 양식 항목명 기준)
+│  ├─ document-text.ts     브라우저 안 텍스트 추출 (TXT·DOCX·PDF, 서버 전송 없음)
 │  ├─ situations.ts        일상어 상황 칩과 분야별 입력 가이드 (data/FAQ 6개 분야 대응)
 │  ├─ categories.ts        상담 첫 화면의 문제 유형 6개와 유형별 입력 가이드·예시 문장
 │  ├─ intake.ts            쟁점(issue) 목록, 유형·문장 → 쟁점 라우팅, 확인 항목 도움말
@@ -106,5 +108,5 @@ src/
 - 스타일은 CSS Modules(`*.module.css`)를 사용하고, 색상·간격 토큰은 `src/app/globals.css`에 있습니다.
 - 법령 수집일과 법령 목록은 `src/lib/site.ts`, 최저임금은 `src/lib/contract-check.ts`에서 바꿉니다. 코퍼스를 다시 수집하면 함께 갱신하세요.
 - 예시 답변의 조문 인용은 `data/raw/statutes/current/`의 수집 원문과 같은 문장입니다.
-- `ChatRoom`은 `src/lib/rag-client.ts`로 실제 상담 API를 호출합니다. 사실 확인 카드(`FactCheckCard`)는 `/api/rag/intake`를, 그 외 답변은 `/api/rag/answer`를 씁니다. 두 요청 모두 같은 출처의 `src/app/api/rag/[action]/route.ts`가 FastAPI(기본 `127.0.0.1:8000`)로 전달합니다. `RagAnswerCard`가 실제 답변을 표시하며, 기존 `AnswerCard`는 홈의 예시 미리보기에 사용됩니다. `ContractUpload`는 계약서 분석 API 구현 전까지 예시로 유지됩니다.
-- `ContractWriter`는 [고용노동부 표준근로계약서 작성방법](https://www.moel.go.kr/mainpop2.do)의 항목을 참고한 화면 내 초안 작성기입니다. 입력 내용은 저장·전송되지 않으며 미리보기는 서명된 계약서가 아닙니다.
+- `ChatRoom`은 `src/lib/rag-client.ts`로 실제 상담 API를 호출합니다. 사실 확인 카드(`FactCheckCard`)는 `/api/rag/intake`를, 그 외 답변은 `/api/rag/answer`를 씁니다. 두 요청 모두 같은 출처의 `src/app/api/rag/[action]/route.ts`가 FastAPI(기본 `127.0.0.1:8000`)로 전달합니다. `RagAnswerCard`가 실제 답변을 표시하며, 기존 `AnswerCard`는 홈의 예시 미리보기에 사용됩니다. `ContractUpload`는 표준 양식 항목명을 기준으로 본문을 읽으며, 양식이 다른 계약서는 일부 항목을 못 읽을 수 있습니다.
+- 근로계약서 화면은 [고용노동부 표준근로계약서 작성방법](https://www.moel.go.kr/mainpop2.do)의 항목 순서를 따르는 한 화면입니다. 항목을 채우면 `checkDraft`가 조건부로 경고·확인·참고를 보여 줍니다: 시급(또는 월급·일급의 시급 환산)이 2026년 최저임금 10,320원 미만, 수습 감액 90% 요건, 하루 4·8시간의 휴게 30·60분, 휴게가 근로시간 밖, 주 15시간 이상인데 주휴일 미지정, 매일 근무, 기간제 2년 초과, 사본 미교부, 산재보험 누락. 받은 계약서는 PDF·DOCX·TXT를 브라우저에서 읽거나 붙여 넣어 같은 초안으로 바꿔 점검합니다. HWP와 사진(OCR)은 지원하지 않습니다. 입력과 파일은 서버로 보내지 않습니다.

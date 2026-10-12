@@ -248,59 +248,53 @@
 
 /* ───────── 답변 예시 ───────── */
 
-.previewSection {
-  margin-top: 40px;
+/* ───────── 세 단계 ───────── */
+
+.askSection,
+.contractSection,
+.stepsSection {
+  margin-top: 32px;
 }
 
-.previewGrid {
+.steps {
   display: grid;
-  gap: 20px;
-}
-
-.previewQuestion {
-  width: fit-content;
-  max-width: 88%;
-  margin: 0 0 10px auto;
-  padding: 10px 14px;
-  border-radius: 16px 4px 16px 16px;
-  color: white;
-  background: var(--green);
-  font-size: 14px;
-  line-height: 1.55;
-}
-
-.differences {
-  display: grid;
-  gap: 14px;
-  padding: 0;
+  gap: 12px;
   margin: 0;
+  padding: 0;
   list-style: none;
 }
 
-.differences li {
+.steps li {
   display: grid;
-  grid-template-columns: 26px 1fr;
-  gap: 10px;
+  grid-template-columns: 34px 1fr;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: white;
 }
 
-.differenceMark {
-  width: 26px;
-  height: 26px;
+.stepNumber {
   display: grid;
   place-items: center;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  color: var(--green);
-  background: var(--green-pale);
+  color: white;
+  background: var(--green);
+  font-weight: 800;
 }
 
-.differences strong {
+.steps strong {
+  display: block;
   font-size: 15px;
 }
 
-.differences p {
-  margin: 2px 0 0;
+.steps p {
+  margin: 4px 0 0;
   color: var(--muted);
   font-size: 13px;
+  line-height: 1.6;
 }
 
 /* ───────── 도움 연결·데이터 기준 ───────── */
@@ -406,26 +400,14 @@
     line-height: 1.2;
   }
 
-  .entryGrid {
-    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-    align-items: start;
-    gap: 28px;
-    margin-top: 40px;
+  .askSection,
+  .contractSection,
+  .stepsSection {
+    margin-top: 48px;
   }
 
-  .previewSection {
-    margin-top: 56px;
-  }
-
-  .previewGrid {
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-    align-items: start;
-    gap: 40px;
-  }
-
-  /* 질문 말풍선 아래의 답변 카드와 높이를 맞춘다. */
-  .differences {
-    padding-top: 84px;
+  .steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .homeFooter {

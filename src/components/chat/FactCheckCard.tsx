@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Icon } from '@/components/common/Icon';
+import { ACTION_GUIDES } from '@/lib/action-guides';
 import { cx } from '@/lib/cx';
 import {
   BOOLEAN_LABELS,
@@ -449,6 +450,7 @@ function ResultBlock({
   const violated = result.verdict === '침해';
   const basis = result.sections.find((section) => section.key === 'basis');
   const action = result.sections.find((section) => section.key === 'action');
+  const guide = ACTION_GUIDES[result.issue];
   return (
     <div className={styles.result} aria-live="polite">
       <div
@@ -495,6 +497,55 @@ function ResultBlock({
         <section className={styles.section}>
           <h3>{action.title}</h3>
           <p>{action.text}</p>
+          {violated && guide && (
+            <div className={styles.guide}>
+              <div>
+                <strong>먼저 모아 둘 증빙</strong>
+                <ul>
+                  {guide.evidence.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <strong>순서대로 할 일</strong>
+                <ol>
+                  {guide.steps.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ol>
+              </div>
+              {guide.deadlines.length > 0 && (
+                <div>
+                  <strong>기한</strong>
+                  <ul>
+                    {guide.deadlines.map((item) => (
+                      <li key={item.label}>
+                        {item.label} <small>({item.basis})</small>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <div>
+                <strong>도움 받을 곳</strong>
+                <ul>
+                  {guide.contacts.map((item) => (
+                    <li key={item.name}>
+                      {item.url ? (
+                        <a href={item.url} target="_blank" rel="noopener noreferrer">
+                          {item.name} ↗
+                        </a>
+                      ) : (
+                        item.name
+                      )}{' '}
+                      <small>{item.note}</small>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
         </section>
       )}
 

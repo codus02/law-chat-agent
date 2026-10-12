@@ -22,7 +22,11 @@ export function RagAnswerCard({
         <strong>{LABELS[answer.status]}</strong>
       </div>
       {answer.sections.map((section) => (
-        <section className={styles.answerSection} key={section.key} data-answer-section={section.key}>
+        <section
+          className={styles.answerSection}
+          key={section.key}
+          data-answer-section={section.key}
+        >
           <h3 className={styles.sectionTitle}>{section.title}</h3>
           <p className={styles.ragText}>{section.text}</p>
         </section>

@@ -1,102 +1,90 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { flushSync } from 'react-dom';
+import { useRef, useState } from 'react';
 import { Icon } from '@/components/common/Icon';
-import { Kicker } from '@/components/common/PageParts';
 import { useToast } from '@/components/common/Toast';
+import { checkDraft, summarize, type Draft } from '@/lib/contract-draft';
+import { parseContractText, type ParsedContract } from '@/lib/contract-parse';
+import { extractText, UnsupportedDocumentError } from '@/lib/document-text';
 import { cx } from '@/lib/cx';
-import { SAMPLE_CHECKED_ITEMS, SAMPLE_RISKS, type RiskLevel } from '@/mocks/contract-analysis';
-import styles from './contract.module.css';
+import styles from './contract-studio.module.css';
 
-const ACCEPTED_TYPES = '.pdf,.doc,.docx,.hwp,.hwpx,.png,.jpg,.jpeg';
+const ACCEPTED_TYPES = '.pdf,.docx,.txt';
 const MAX_FILE_BYTES = 20 * 1024 * 1024;
-/** 실제 분석 API가 붙기 전까지 분석 대기 시간을 흉내 낸다. */
-const MOCK_ANALYSIS_MS = 950;
 
-const RISK_ICONS: Record<RiskLevel, string> = { danger: '!', warning: '△', safe: '✓' };
-
-const STEPS = [
-  { title: '문서 항목 추출', caption: '임금·시간·휴일·휴가 조건 구조화' },
-  { title: '현행 법령 대조', caption: '적용 법률과 행정해석 검색' },
-  { title: '위험도와 근거 제시', caption: '문제 조항 및 수정 방향 안내' },
-];
-
-export function ContractUpload() {
+/**
+ * 받은 계약서를 읽어 표준근로계약서 초안으로 바꾼다. 파일은 브라우저 안에서만 읽고 서버로 보내지 않는다.
+ */
+export function ContractUpload({ onApply }: { onApply: (draft: Draft, source: string) => void }) {
   const showToast = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const resultRef = useRef<HTMLDivElement>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [isDragging, setIsDragging] = useState(false);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analyzedFileName, setAnalyzedFileName] = useState<string | null>(null);
+  const [isReading, setIsReading] = useState(false);
+  const [pasted, setPasted] = useState('');
+  const [parsed, setParsed] = useState<(ParsedContract & { source: string }) | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => () => clearTimeout(timerRef.current), []);
-
-  const riskCount = SAMPLE_RISKS.filter((risk) => risk.level !== 'safe').length;
-
-  const openFilePicker = () => {
-    if (!isAnalyzing) fileInputRef.current?.click();
+  const analyzeText = (text: string, source: string) => {
+    if (!text.trim()) {
+      setError('읽을 수 있는 글자가 없어요.');
+      return;
+    }
+    const result = parseContractText(text);
+    setParsed({ ...result, source });
+    setError(null);
   };
 
-  const analyze = (file: File | undefined) => {
+  const readFile = async (file: File | undefined) => {
     if (!file) return;
     if (file.size > MAX_FILE_BYTES) {
       showToast('20MB 이하의 파일만 올릴 수 있어요.');
       return;
     }
-    setIsAnalyzing(true);
-    showToast('현행 법령과 계약 내용을 대조하고 있어요.');
-    clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => {
-      flushSync(() => {
-        setAnalyzedFileName(file.name);
-        setIsAnalyzing(false);
-      });
-      resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, MOCK_ANALYSIS_MS);
+    setIsReading(true);
+    setError(null);
+    try {
+      const text = await extractText(file);
+      analyzeText(text, file.name);
+    } catch (caught) {
+      setError(
+        caught instanceof UnsupportedDocumentError
+          ? caught.message
+          : '파일을 읽지 못했어요. 내용을 붙여 넣어 주세요.',
+      );
+      setParsed(null);
+    } finally {
+      setIsReading(false);
+    }
   };
 
-  return (
-    <>
-      <div className={styles.uploadLayout}>
-        <div className={styles.uploadCopy}>
-          <Kicker>DOCUMENT REVIEW</Kicker>
-          <h2>
-            계약서 속 위험 조항을
-            <br />
-            근거와 함께 찾아드려요.
-          </h2>
-          <p>
-            업로드한 문서는 분석 용도로만 사용되며, 이 프로토타입에서는 예시 분석 결과가 표시됩니다.
-          </p>
-          <ol>
-            {STEPS.map((step, index) => (
-              <li key={step.title}>
-                <span>{index + 1}</span>
-                <p>
-                  <strong>{step.title}</strong>
-                  <small>{step.caption}</small>
-                </p>
-              </li>
-            ))}
-          </ol>
-        </div>
+  const review = parsed ? checkDraft(parsed.draft) : null;
+  const counts = review ? summarize(review.findings) : null;
 
+  return (
+    <div className={styles.upload}>
+      <div className={styles.uploadIntro}>
+        <h2>받은 계약서를 같은 기준으로 점검해요</h2>
+        <p>
+          표준근로계약서 항목(계약기간, 근로시간·휴게, 근무일·주휴일, 임금, 사회보험, 교부)을
+          본문에서 찾아 읽고, 작성 화면과 같은 조건으로 확인해요. 파일은 이 브라우저 안에서만 읽고
+          서버로 보내지 않아요.
+        </p>
+      </div>
+
+      <div className={styles.uploadGrid}>
         <input
           ref={fileInputRef}
           type="file"
           accept={ACCEPTED_TYPES}
           hidden
           onChange={(event) => {
-            analyze(event.target.files?.[0]);
-            // 같은 파일을 다시 골라도 change 이벤트가 발생하도록 비운다.
+            void readFile(event.target.files?.[0]);
             event.target.value = '';
           }}
         />
         <div
-          className={cx(styles.uploadZone, isDragging && styles.isDragging)}
-          onClick={openFilePicker}
+          className={cx(styles.dropZone, isDragging && styles.isDragging)}
+          onClick={() => !isReading && fileInputRef.current?.click()}
           onDragEnter={(event) => {
             event.preventDefault();
             setIsDragging(true);
@@ -106,62 +94,105 @@ export function ContractUpload() {
             setIsDragging(true);
           }}
           onDragLeave={(event) => {
-            if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+            if (!event.currentTarget.contains(event.relatedTarget as Node | null))
               setIsDragging(false);
-            }
           }}
           onDrop={(event) => {
             event.preventDefault();
             setIsDragging(false);
-            if (!isAnalyzing) analyze(event.dataTransfer.files[0]);
+            if (!isReading) void readFile(event.dataTransfer.files[0]);
           }}
         >
-          <div className={styles.uploadIllustration} aria-hidden="true">
-            <Icon name="upload" size={26} />
-          </div>
-          <h3>근로계약서를 올려 주세요</h3>
-          <p>사진을 찍거나 파일을 고르세요. PC에서는 끌어다 놓아도 돼요.</p>
-          {/* 클릭은 업로드 영역으로 전달되어 파일 선택 창을 연다. */}
-          <button type="button" disabled={isAnalyzing}>
-            {isAnalyzing ? '문서 분석 중…' : analyzedFileName ? '다른 파일 선택' : '파일 선택'}
-          </button>
-          <small>PDF, HWP, DOCX, JPG, PNG · 최대 20MB</small>
+          <span className={styles.dropIcon} aria-hidden="true">
+            <Icon name="upload" size={24} />
+          </span>
+          <strong>{isReading ? '읽는 중…' : 'PDF · DOCX · TXT 파일 올리기'}</strong>
+          <small>
+            누르거나 끌어다 놓으세요. HWP는 PDF로 저장해서, 사진은 아래에 내용을 붙여 넣어 주세요.
+          </small>
         </div>
+
+        <label className={styles.pasteBox}>
+          <span>또는 계약서 내용을 붙여 넣기</span>
+          <textarea
+            rows={8}
+            value={pasted}
+            onChange={(event) => setPasted(event.target.value)}
+            placeholder={
+              '예:\n1. 근로계약기간: 2026년 3월 1일부터 2026년 8월 31일까지\n2. 근무장소: ○○편의점\n4. 소정근로시간: 10시 00분부터 16시 00분까지 (휴게시간: 13시 00분~13시 30분)\n5. 근무일/휴일: 매주 월, 수, 금 근무, 주휴일 매주 일요일\n6. 임금: 시간급 10,320원 ...'
+            }
+          />
+          <button
+            type="button"
+            disabled={!pasted.trim() || isReading}
+            onClick={() => analyzeText(pasted, '붙여 넣은 내용')}
+          >
+            이 내용 읽기
+          </button>
+        </label>
       </div>
 
-      {analyzedFileName && (
-        <div ref={resultRef} className={styles.analysisDemo}>
-          <div className={styles.analysisHeader}>
-            <div>
-              <span className={styles.fileSymbol} aria-hidden="true">
-                ▤
-              </span>
-              <p>
-                <strong>{analyzedFileName}</strong>
-                <small>문서 분석 완료 · {SAMPLE_CHECKED_ITEMS}개 항목 확인</small>
-              </p>
-            </div>
-            <span className={styles.riskSummary}>주의 {riskCount}건</span>
-          </div>
-          <div className={styles.riskGrid}>
-            {SAMPLE_RISKS.map((risk) => (
-              <article key={risk.title} className={cx(styles.riskCard, styles[risk.level])}>
-                <div className={styles.riskTitle}>
-                  <span aria-hidden="true">{RISK_ICONS[risk.level]}</span>
-                  <p>
-                    <small>{risk.label}</small>
-                    <strong>{risk.title}</strong>
-                  </p>
-                </div>
-                <p>{risk.description}</p>
-                <div className={styles.evidenceLine}>
-                  <span>{risk.basisLabel}</span> {risk.basis}
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
+      {error && (
+        <p className={styles.uploadError} role="alert">
+          {error}
+        </p>
       )}
-    </>
+
+      {parsed && review && counts && (
+        <section className={styles.parsed} aria-live="polite">
+          <header>
+            <div>
+              <strong>{parsed.source}</strong>
+              <small>
+                읽은 항목 {parsed.found.length}개 · 경고 {counts.danger} · 확인 {counts.warning} ·
+                충족 {counts.ok}
+              </small>
+            </div>
+            <button
+              type="button"
+              className={styles.applyButton}
+              onClick={() => onApply(parsed.draft, parsed.source)}
+            >
+              작성 화면에서 고치며 점검하기
+            </button>
+          </header>
+          {parsed.found.length === 0 ? (
+            <p className={styles.uploadError}>
+              표준근로계약서 항목을 찾지 못했어요. 항목명(근로계약기간, 소정근로시간, 임금 등)이
+              있는 본문인지 확인해 주세요.
+            </p>
+          ) : (
+            <dl className={styles.foundList}>
+              {parsed.found.map((item) => (
+                <div key={`${item.field}-${item.value}`}>
+                  <dt>{item.field}</dt>
+                  <dd>{item.value}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
+          <ul className={styles.findings}>
+            {review.findings
+              .filter((f) => f.tone !== 'info')
+              .map((f) => (
+                <li key={f.title} className={cx(styles.finding, styles[f.tone])}>
+                  <span className={styles.findingTone}>
+                    {f.tone === 'danger' ? '경고' : f.tone === 'warning' ? '확인' : '충족'}
+                  </span>
+                  <div>
+                    <strong>{f.title}</strong>
+                    <p>{f.text}</p>
+                    {f.basis && <small>근거 · {f.basis}</small>}
+                  </div>
+                </li>
+              ))}
+          </ul>
+          <details className={styles.rawText}>
+            <summary>읽어 들인 본문 보기</summary>
+            <pre>{parsed.text.slice(0, 4000)}</pre>
+          </details>
+        </section>
+      )}
+    </div>
   );
 }
