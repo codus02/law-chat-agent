@@ -59,6 +59,12 @@ export function ContractForm({
   onReset: () => void;
 }) {
   const [showPreview, setShowPreview] = useState(false);
+
+  // 브라우저 인쇄 대화상자에서 "PDF로 저장"을 고르면 미리보기 부분만 PDF가 된다(@media print).
+  const saveAsPdf = () => {
+    setShowPreview(true);
+    window.setTimeout(() => window.print(), 150);
+  };
   const { findings, derived } = useMemo(() => checkDraft(draft), [draft]);
   const summary = summarize(findings);
   const bySection = (section: Section) => findings.filter((f) => f.section === section);
@@ -416,7 +422,10 @@ export function ContractForm({
         <section className={cx(styles.section, fieldState('copy'))}>
           <header>
             <h3>08 계약서 교부와 서명</h3>
-            <p>계약서는 사업주와 근로자가 각각 서명하고, 근로자가 한 부를 받아요.</p>
+            <p>
+              계약서는 사업주와 근로자가 각각 서명하고, 근로자가 한 부를 받아요. 이름과 날짜는 선택
+              항목이에요. 적으면 미리보기와 PDF에 들어가요.
+            </p>
           </header>
           <label className={styles.check}>
             <input
@@ -428,25 +437,25 @@ export function ContractForm({
           </label>
           <div className={styles.grid}>
             <label>
-              사업체명
+              사업체명 (선택)
               <input
                 value={draft.businessName}
                 onChange={(e) => set('businessName', e.target.value)}
               />
             </label>
             <label>
-              사업주(대표자) 성명
+              사업주(대표자) 성명 (선택)
               <input
                 value={draft.employerName}
                 onChange={(e) => set('employerName', e.target.value)}
               />
             </label>
             <label>
-              근로자 성명
+              근로자 성명 (선택)
               <input value={draft.workerName} onChange={(e) => set('workerName', e.target.value)} />
             </label>
             <label>
-              계약 체결일
+              계약 체결일 (선택)
               <input
                 type="date"
                 value={draft.signedDate}
@@ -515,6 +524,9 @@ export function ContractForm({
         >
           <Icon name="contract" size={16} />{' '}
           {showPreview ? '미리보기 닫기' : '계약서 문구로 미리보기'}
+        </button>
+        <button className={styles.printButton} type="button" onClick={saveAsPdf}>
+          <Icon name="upload" size={16} /> PDF로 저장
         </button>
         <p className={styles.summaryNote}>
           고용노동부{' '}

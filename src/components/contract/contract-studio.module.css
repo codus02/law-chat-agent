@@ -418,6 +418,22 @@
   font-weight: 700;
 }
 
+.printButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 42px;
+  width: 100%;
+  justify-content: center;
+  margin-top: 8px;
+  border: 0;
+  border-radius: 10px;
+  color: white;
+  background: var(--green);
+  font-size: 14px;
+  font-weight: 700;
+}
+
 .summaryNote {
   margin: 10px 0 0;
   color: var(--subtle);
@@ -649,5 +665,33 @@
   .summary {
     position: sticky;
     top: 24px;
+  }
+}
+
+/* ───── PDF 저장(인쇄): 미리보기만 종이에 남긴다 ───── */
+
+@media print {
+  :global(body) * {
+    visibility: hidden;
+  }
+
+  .preview,
+  .preview * {
+    visibility: visible;
+  }
+
+  .preview {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    margin: 0;
+    border: 0;
+    background: white;
+    font-size: 12pt;
+  }
+
+  .preview small {
+    display: none;
   }
 }
