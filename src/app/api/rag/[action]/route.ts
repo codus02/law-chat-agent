@@ -8,6 +8,8 @@ const TIMEOUT_MS: Record<string, number> = {
   answer: 300_000,
   search: 30_000,
   intake: 30_000,
+  // 긴 글 자세히 읽기: 로컬 LLM이 CPU에서 글당 1분 안팎 걸린다.
+  'intake-deep': 300_000,
 };
 
 export async function POST(request: NextRequest, context: RouteContext<'/api/rag/[action]'>) {

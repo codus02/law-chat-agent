@@ -142,6 +142,19 @@ export const searchEvidence = (question: string, options: Options = {}) =>
 export const answerQuestion = (question: string, options: Options = {}) =>
   post<AnswerResult>('/api/rag/answer', question, options);
 
+export type DeepReadResult = {
+  status: 'skipped' | 'failed' | 'done';
+  facts: Facts;
+  /** 필드별로 모델이 가리킨 원문 구절. 값은 규칙이 이 구절에서 다시 읽은 것이다. */
+  evidence: Record<string, string>;
+  seconds: number;
+  reason?: string;
+};
+
+/** 긴 글(150자 초과)을 로컬 LLM으로 한 번 더 읽어 빈 칸 후보를 받는다. 판정은 하지 않는다. */
+export const requestDeepRead = (question: string, signal?: AbortSignal) =>
+  postJson<DeepReadResult>('/api/rag/intake-deep', { question }, signal);
+
 /**
  * 사실 확인 점검. confirmed=false면 질문에서 추정한 값과 확인 항목만 돌려주고,
  * confirmed=true면 사용자가 확인한 값으로만 판정한다. 백엔드는 모르는 값(null)을 추정하지 않는다.

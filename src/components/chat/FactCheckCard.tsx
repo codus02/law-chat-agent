@@ -14,6 +14,7 @@ import {
 } from '@/lib/intake';
 import {
   RagApiError,
+  requestDeepRead,
   requestIntake,
   type FactValue,
   type Facts,
@@ -21,6 +22,9 @@ import {
   type IntakeResult,
 } from '@/lib/rag-client';
 import styles from './fact-check.module.css';
+
+/** 이보다 긴 글만 로컬 LLM으로 한 번 더 읽는다(백엔드 DEEP_MIN_CHARS와 같게). */
+const DEEP_MIN_CHARS = 150;
 
 /**
  * 사실 확인 점검 카드.
@@ -49,6 +53,19 @@ export function FactCheckCard({
   const [missing, setMissing] = useState<string[]>([]);
   const request = useRef<AbortController | null>(null);
   const initialised = useRef(false);
+  // 긴 글 자세히 읽기: 카드를 먼저 띄우고, 로컬 LLM이 빈 칸 후보를 나중에 채운다.
+  const [deep, setDeep] = useState<{
+    status: 'idle' | 'reading' | 'done' | 'failed';
+    added: number;
+  }>({ status: 'idle', added: 0 });
+  const [evidence, setEvidence] = useState<Record<string, string>>({});
+  const deepRequest = useRef<AbortController | null>(null);
+  const touched = useRef<Set<string>>(new Set());
+  const phaseRef = useRef(phase);
+  const fieldKeysRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    phaseRef.current = phase;
+  }, [phase]);
 
   const issueMeta = ISSUES[issue];
 
@@ -84,6 +101,7 @@ export function FactCheckCard({
       setMissing([]);
       setResult(null);
       setPhase('editing');
+      if (question.trim().length > DEEP_MIN_CHARS) void readDeeply();
     } catch (caught) {
       if (controller.signal.aborted) return;
       fail(caught);
@@ -91,11 +109,59 @@ export function FactCheckCard({
     }
   };
 
+  const readDeeply = async () => {
+    deepRequest.current?.abort();
+    const controller = new AbortController();
+    deepRequest.current = controller;
+    setDeep({ status: 'reading', added: 0 });
+    try {
+      const data = await requestDeepRead(question, controller.signal);
+      if (controller.signal.aborted) return;
+      if (data.status !== 'done') {
+        setDeep({ status: data.status === 'skipped' ? 'idle' : 'failed', added: 0 });
+        return;
+      }
+      // 이미 점검을 시작했다면 결과를 바꾸지 않는다.
+      if (phaseRef.current === 'checking' || phaseRef.current === 'done') {
+        setDeep({ status: 'done', added: 0 });
+        return;
+      }
+      // 사용자가 손댄 칸과 이미 값이 있는 칸은 그대로 두고, 빈 칸만 채운다.
+      const added: string[] = [];
+      setValues((current) => {
+        const next = { ...current };
+        for (const [key, value] of Object.entries(data.facts)) {
+          if (['as_of_date', 'korea'].includes(key) || touched.current.has(key)) continue;
+          // 이 쟁점의 확인 항목에 있는 칸만 채운다.
+          if (!fieldKeysRef.current.has(key)) continue;
+          if (next[key] !== null && next[key] !== undefined) continue;
+          next[key] = value;
+          added.push(key);
+        }
+        return next;
+      });
+      setUnconfirmed((current) => [...new Set([...current, ...added])]);
+      setEvidence((current) => ({
+        ...current,
+        ...Object.fromEntries(
+          added.filter((key) => data.evidence[key]).map((key) => [key, data.evidence[key]]),
+        ),
+      }));
+      setDeep({ status: 'done', added: added.length });
+    } catch {
+      if (controller.signal.aborted) return;
+      setDeep({ status: 'failed', added: 0 });
+    }
+  };
+
   useEffect(() => {
     if (initialised.current) return;
     initialised.current = true;
     void load();
-    return () => request.current?.abort();
+    return () => {
+      request.current?.abort();
+      deepRequest.current?.abort();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -119,6 +185,9 @@ export function FactCheckCard({
   }, [values]);
 
   const fields = useMemo(() => intake?.fields ?? [], [intake]);
+  useEffect(() => {
+    fieldKeysRef.current = new Set(fields.map((field) => field.key));
+  }, [fields]);
   const premiseFields = fields.filter(
     (field) =>
       (PREMISE_KEYS as readonly string[]).includes(field.key) &&
@@ -140,6 +209,7 @@ export function FactCheckCard({
     phase === 'editing' && !!intake && emptyKeys.length === 0 && pendingConfirm.length === 0;
 
   const setValue = (key: string, value: FactValue) => {
+    touched.current.add(key);
     setValues((current) => ({ ...current, [key]: value }));
     setUnconfirmed((current) => current.filter((item) => item !== key));
     setMissing((current) => current.filter((item) => item !== key));
@@ -220,6 +290,21 @@ export function FactCheckCard({
               ? '판정에 꼭 필요한 것만 여쭤볼게요. 모르는 값은 비워 두면 추정하지 않고 알려드려요.'
               : '아래 내용이 맞다면 점검을 눌러 주세요.'}
           </p>
+          {deep.status !== 'idle' && (
+            <p
+              className={cx(styles.deepStatus, deep.status === 'reading' && styles.isReading)}
+              role="status"
+            >
+              {deep.status === 'reading' &&
+                '글이 길어서 로컬 모델이 한 번 더 자세히 읽고 있어요(보통 1분 안팎). 그동안 아래 항목을 먼저 확인해도 돼요.'}
+              {deep.status === 'done' &&
+                (deep.added > 0
+                  ? `자세히 읽어서 ${deep.added}개 항목을 더 채웠어요. 글에서 찾은 구절을 보고 맞는지 확인해 주세요.`
+                  : '자세히 읽었지만 더 채울 값은 없었어요. 비어 있는 값만 확인해 주세요.')}
+              {deep.status === 'failed' &&
+                '자세히 읽기를 하지 못했어요. 비어 있는 값은 직접 입력해 주세요.'}
+            </p>
+          )}
 
           <ul className={styles.fields}>
             {issueFields.map((field) => (
@@ -228,6 +313,7 @@ export function FactCheckCard({
                 field={field}
                 value={values[field.key] ?? null}
                 suggested={pendingConfirm.includes(field.key) && !editing.includes(field.key)}
+                evidence={evidence[field.key]}
                 missing={missing.includes(field.key)}
                 disabled={phase === 'checking'}
                 onChange={(value) => setValue(field.key, value)}
@@ -262,6 +348,7 @@ export function FactCheckCard({
                   field={field}
                   value={values[field.key] ?? null}
                   suggested={pendingConfirm.includes(field.key) && !editing.includes(field.key)}
+                  evidence={evidence[field.key]}
                   missing={missing.includes(field.key)}
                   disabled={phase === 'checking'}
                   onChange={(value) => setValue(field.key, value)}
@@ -329,6 +416,7 @@ function FieldRow({
   field,
   value,
   suggested,
+  evidence,
   missing,
   disabled,
   onChange,
@@ -339,6 +427,8 @@ function FieldRow({
   value: FactValue;
   /** 질문에서 추정한 값이라 확인만 받는 상태 */
   suggested: boolean;
+  /** 자세히 읽기로 채운 값이면 근거가 된 원문 구절 */
+  evidence?: string;
   missing: boolean;
   disabled: boolean;
   onChange: (value: FactValue) => void;
@@ -358,8 +448,10 @@ function FieldRow({
       {suggested ? (
         <div className={styles.suggested}>
           <span className={styles.suggestedValue}>
-            질문에서 읽은 값: <strong>{formatValue(field, value)}</strong>
+            {evidence ? '자세히 읽어 찾은 값' : '질문에서 읽은 값'}:{' '}
+            <strong>{formatValue(field, value)}</strong>
           </span>
+          {evidence && <q className={styles.evidenceQuote}>{evidence}</q>}
           <div className={styles.segment}>
             <button type="button" className={styles.isOn} disabled={disabled} onClick={onConfirm}>
               맞아요

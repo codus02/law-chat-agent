@@ -59,6 +59,47 @@
   padding-bottom: 14px;
 }
 
+.deepStatus {
+  margin: 8px 16px 0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  color: #2f4a66;
+  background: #eef3f8;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.deepStatus.isReading::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: #4a78a8;
+  animation: deepPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes deepPulse {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.evidenceQuote {
+  display: block;
+  padding: 6px 10px;
+  border-left: 3px solid #b9cec0;
+  border-radius: 0 8px 8px 0;
+  color: #3f564b;
+  background: white;
+  font-size: 13px;
+}
+
 .error {
   margin: 12px 16px 0;
   padding: 10px 12px;
