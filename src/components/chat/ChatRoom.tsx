@@ -8,7 +8,7 @@ import { findCategory, type Category, type CategoryId } from '@/lib/categories';
 import { MAX_MESSAGE_LENGTH, type ChatMessage } from '@/lib/chat';
 import { cx } from '@/lib/cx';
 import { formatNumber } from '@/lib/format';
-import { CATEGORY_ISSUES, routeIssues, type IssueId } from '@/lib/intake';
+import type { IssueId } from '@/lib/intake';
 import { answerQuestion, RagApiError } from '@/lib/rag-client';
 import { useLawStatus } from '@/lib/use-law-status';
 import {
@@ -154,46 +154,15 @@ export function ChatRoom({
     ]);
   }, []);
 
-  // 사용자가 적은 상황을 받아 쟁점을 정한다.
+  // 사용자가 직접 적어 보낸 문장은 추가 선택 없이 바로 답변을 요청한다.
   const submitQuestion = useCallback(
     (question: string, current: Category) => {
       const text = question.trim().slice(0, MAX_MESSAGE_LENGTH);
       if (!text) return;
       setDraft('');
-      const issues = routeIssues(current.id, text);
-      const unmatched = issues.length === CATEGORY_ISSUES[current.id].length && issues.length > 1;
-      if (current.id === 'other' && unmatched) {
-        // 단서가 전혀 없는 '기타' 질문은 바로 검색·생성 답변으로
-        void ask(text, { categoryId: current.id });
-        return;
-      }
-      setMessages((prev) => [
-        ...prev.filter(
-          (message) =>
-            !(
-              message.role === 'assistant' &&
-              (message.kind === 'intro' || message.kind === 'category-prompt')
-            ),
-        ),
-        { id: newId(), role: 'user', text, category: current.id },
-      ]);
-      if (issues.length === 1) {
-        startFactCheck(text, current.id, issues[0]);
-        return;
-      }
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: newId(),
-          role: 'assistant',
-          kind: 'issue-pick',
-          question: text,
-          category: current.id,
-          issues,
-        },
-      ]);
+      void ask(text, { categoryId: current.id });
     },
-    [ask, startFactCheck],
+    [ask],
   );
 
   const pickIssue = (messageId: string, issue: IssueId) => {
