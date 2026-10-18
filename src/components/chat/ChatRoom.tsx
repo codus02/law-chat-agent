@@ -83,7 +83,16 @@ export function ChatRoom({
       const user: ChatMessage[] = echoUser
         ? [{ id: newId(), role: 'user', text, category: categoryId }]
         : [];
-      return [...prev, ...user, pending];
+      const conversation = echoUser
+        ? prev.filter(
+            (message) =>
+              !(
+                message.role === 'assistant' &&
+                (message.kind === 'intro' || message.kind === 'category-prompt')
+              ),
+          )
+        : prev;
+      return [...conversation, ...user, pending];
     });
     setIsBusy(true);
     try {
@@ -158,7 +167,16 @@ export function ChatRoom({
         void ask(text, { categoryId: current.id });
         return;
       }
-      setMessages((prev) => [...prev, { id: newId(), role: 'user', text, category: current.id }]);
+      setMessages((prev) => [
+        ...prev.filter(
+          (message) =>
+            !(
+              message.role === 'assistant' &&
+              (message.kind === 'intro' || message.kind === 'category-prompt')
+            ),
+        ),
+        { id: newId(), role: 'user', text, category: current.id },
+      ]);
       if (issues.length === 1) {
         startFactCheck(text, current.id, issues[0]);
         return;

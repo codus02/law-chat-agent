@@ -50,8 +50,9 @@ export async function POST(request: NextRequest, context: RouteContext<'/api/rag
     }
     return Response.json(
       {
-        detail:
-          '상담 서버(127.0.0.1:8000)에 연결할 수 없어요. 프로젝트 루트에서 scripts/start_local.ps1을 실행했는지 확인해 주세요.',
+        detail: process.env.VERCEL
+          ? '현재 배포 상담 서버와 연결할 수 없어요. 잠시 후 다시 시도해 주세요.'
+          : '상담 서버(127.0.0.1:8000)에 연결할 수 없어요. 프로젝트 루트에서 scripts/start_local.ps1을 실행했는지 확인해 주세요.',
       },
       { status: 503 },
     );
