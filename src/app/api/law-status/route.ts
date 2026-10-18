@@ -129,20 +129,7 @@ async function currentLaw(name: string, today: string, credential: string) {
 
 export async function GET() {
   const today = todayKst();
-  const credential = process.env.LAW_API_OC?.trim();
-  if (!credential) {
-    return NextResponse.json(
-      {
-        verified_through: LAST_VERIFIED_FALLBACK,
-        today,
-        today_supported: false,
-        last_result: 'failed',
-        changed: [],
-        source: 'law.go.kr Open API',
-      },
-      { headers: { 'Cache-Control': 's-maxage=300, stale-while-revalidate=3600' } },
-    );
-  }
+  const credential = process.env.LAW_API_OC?.trim() || 'test';
 
   try {
     const changed: string[] = [];
