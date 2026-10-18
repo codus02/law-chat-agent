@@ -9,8 +9,8 @@ import { MAX_MESSAGE_LENGTH, type ChatMessage } from '@/lib/chat';
 import { cx } from '@/lib/cx';
 import { formatNumber } from '@/lib/format';
 import { CATEGORY_ISSUES, routeIssues, type IssueId } from '@/lib/intake';
-import { LAW_COLLECTED_DATE } from '@/lib/site';
 import { answerQuestion, RagApiError } from '@/lib/rag-client';
+import { useLawStatus } from '@/lib/use-law-status';
 import {
   AnswerMessage,
   CategoryPromptMessage,
@@ -56,6 +56,7 @@ export function ChatRoom({
   initialCategory: CategoryId | null;
 }) {
   const showToast = useToast();
+  const lawStatus = useLawStatus();
   const [messages, setMessages] = useState<ChatMessage[]>([INTRO_MESSAGE]);
   const [category, setCategory] = useState<Category | null>(null);
   const [draft, setDraft] = useState('');
@@ -309,7 +310,7 @@ export function ChatRoom({
             <h1>노동법 상담</h1>
             <small>
               <i aria-hidden="true" />
-              {LAW_COLLECTED_DATE} 수집 법령 기준
+              {lawStatus.longDate}까지 확인 · {lawStatus.note}
             </small>
           </div>
           <button

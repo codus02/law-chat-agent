@@ -1,10 +1,9 @@
 import type { Answer, ChatHistoryItem, ChatMessage } from '@/lib/chat';
-import { LAW_COLLECTED_DATE } from '@/lib/site';
 
 // 백엔드(RAG API) 연결 전까지 화면을 채우는 예시 데이터.
 // 조문 인용은 data/raw/statutes/current/의 수집 원문과 같은 문장이다.
 
-const LAW_ORIGIN = `국가법령정보센터 현행본 · ${LAW_COLLECTED_DATE} 수집`;
+const LAW_ORIGIN = '국가법령정보센터 현행본 · 매일 자동 확인';
 
 export const SAMPLE_ANSWER: Answer = {
   question: '카페에서 일주일에 5일, 하루 4시간씩 일하고 있어요. 주휴수당을 받을 수 있나요?',

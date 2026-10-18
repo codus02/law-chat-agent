@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
+import { LawStatusNote, LawVerifiedDate } from '@/components/common/LawVerifiedDate';
 import { BackLink, ContentWrap, Kicker } from '@/components/common/PageParts';
 import { cx } from '@/lib/cx';
-import { COLLECTED_LAWS, HOTLINE, LAW_COLLECTED_DATE, LEGAL_NOTICE } from '@/lib/site';
+import { COLLECTED_LAWS, HOTLINE, LEGAL_NOTICE } from '@/lib/site';
 import styles from './about.module.css';
 
 export const metadata: Metadata = {
@@ -64,8 +65,8 @@ export default function AboutPage() {
         <section className={styles.section} id="data" aria-labelledby="data-title">
           <h2 id="data-title">데이터 기준</h2>
           <p className={styles.sectionLead}>
-            국가법령정보센터에서 {LAW_COLLECTED_DATE} 기준으로 시행 중인 현행 법령만 수집했어요.
-            과거 시행본과 시행 예정본은 포함하지 않아요.
+            국가법령정보센터에서 수집한 법령을 <LawVerifiedDate />까지 확인했어요.{' '}
+            <LawStatusNote />하며, 과거 시행본과 시행 예정본은 포함하지 않아요.
           </p>
           <ul className={styles.lawList}>
             {COLLECTED_LAWS.map((law) => (

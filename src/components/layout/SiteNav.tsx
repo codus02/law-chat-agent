@@ -6,12 +6,11 @@ import { Icon } from '@/components/common/Icon';
 import { cx } from '@/lib/cx';
 import {
   ABOUT_NAV,
-  LAW_COLLECTED_DATE,
-  LAW_COLLECTED_SHORT,
   LAW_SCOPE,
   MAIN_NAV,
   SITE_NAME,
 } from '@/lib/site';
+import { useLawStatus } from '@/lib/use-law-status';
 import styles from './shell.module.css';
 
 const TAB_ITEMS = [...MAIN_NAV, ABOUT_NAV];
@@ -26,6 +25,7 @@ function isActivePath(pathname: string, href: string) {
 export function SiteNav() {
   const pathname = usePathname();
   const isImmersive = IMMERSIVE_PATHS.includes(pathname);
+  const lawStatus = useLawStatus();
 
   return (
     <>
@@ -40,8 +40,10 @@ export function SiteNav() {
           </Link>
           <Link className={styles.lawChip} href="/about#data">
             <span className={styles.pulseDot} aria-hidden="true" />
-            <span className={styles.visuallyHidden}>{LAW_COLLECTED_DATE} 수집 </span>
-            <span aria-hidden="true">법령 {LAW_COLLECTED_SHORT} 기준</span>
+            <span className={styles.visuallyHidden}>
+              법령 {lawStatus.longDate}까지 확인, {lawStatus.note}
+            </span>
+            <span aria-hidden="true">법령 {lawStatus.shortDate} 확인</span>
           </Link>
         </header>
       )}
@@ -80,10 +82,10 @@ export function SiteNav() {
           <Link className={styles.lawStatus} href="/about#data">
             <span className={styles.statusRow}>
               <span className={styles.pulseDot} aria-hidden="true" />
-              <strong>법령 수집 기준</strong>
+              <strong>법령 현행성</strong>
             </span>
-            <span>{LAW_COLLECTED_DATE}</span>
-            <small>{LAW_SCOPE}</small>
+            <span>{lawStatus.longDate}까지 확인</span>
+            <small>{lawStatus.note} · {LAW_SCOPE}</small>
           </Link>
           <Link
             href={ABOUT_NAV.href}

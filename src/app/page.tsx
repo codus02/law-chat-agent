@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { Icon } from '@/components/common/Icon';
+import { LawStatusNote, LawVerifiedDate } from '@/components/common/LawVerifiedDate';
 import { QuestionStarter } from '@/components/home/QuestionStarter';
-import { DEMO_NOTICE, HOTLINE, LAW_COLLECTED_DATE, LAW_SCOPE, LEGAL_NOTICE } from '@/lib/site';
+import { DEMO_NOTICE, HOTLINE, LAW_SCOPE, LEGAL_NOTICE } from '@/lib/site';
 import styles from '@/components/home/home.module.css';
 
 const STEPS = [
@@ -101,7 +102,8 @@ export default function HomePage() {
         </a>
         <p className={styles.dataBasis}>
           <Icon name="book" size={16} />
-          {LAW_COLLECTED_DATE} 수집한 {LAW_SCOPE} 기준 · <Link href="/about#data">자세히 보기</Link>
+          <LawVerifiedDate />까지 확인 · <LawStatusNote /> · {LAW_SCOPE} ·{' '}
+          <Link href="/about#data">자세히 보기</Link>
         </p>
         <p className={styles.legalNotice}>
           {LEGAL_NOTICE} {DEMO_NOTICE}

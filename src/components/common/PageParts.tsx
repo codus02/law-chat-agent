@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { cx } from '@/lib/cx';
-import { LAW_COLLECTED_DATE } from '@/lib/site';
 import { Icon } from './Icon';
+import { LawStatusNote, LawVerifiedDate } from './LawVerifiedDate';
 import styles from './common.module.css';
 
 export function ContentWrap({
@@ -29,7 +29,7 @@ export function Kicker({ children }: { children: React.ReactNode }) {
 export function LawDateBadge() {
   return (
     <span className={styles.lawDate}>
-      <i aria-hidden="true" /> {LAW_COLLECTED_DATE} 수집 법령 기준
+      <i aria-hidden="true" /> <LawVerifiedDate />까지 확인 · <LawStatusNote />
     </span>
   );
 }
