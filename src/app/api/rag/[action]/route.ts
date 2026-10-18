@@ -27,11 +27,15 @@ export async function POST(request: NextRequest, context: RouteContext<'/api/rag
   }
 
   const baseUrl = (process.env.RAG_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, '');
+  const bridgeToken = process.env.RAG_PROXY_TOKEN?.trim();
   const timeout = AbortSignal.timeout(timeoutMs);
   try {
     const upstream = await fetch(`${baseUrl}/api/rag/${action}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        ...(bridgeToken ? { Authorization: `Bearer ${bridgeToken}` } : {}),
+      },
       body: JSON.stringify(payload),
       cache: 'no-store',
       signal: AbortSignal.any([request.signal, timeout]),
