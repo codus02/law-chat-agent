@@ -1,0 +1,164 @@
+.card {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #d9e2dc;
+  border-radius: 16px;
+  background: white;
+}
+
+.title {
+  font-size: 15px;
+}
+
+.lead {
+  margin: 0;
+  color: #4b5a52;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.questions {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.questions p {
+  margin: 0 0 6px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.choices button {
+  min-width: 64px;
+  padding: 7px 12px;
+  border: 1px solid #c9d6ce;
+  border-radius: 999px;
+  color: #2f4a3c;
+  background: #f6f9f7;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.choices button.isChosen {
+  border-color: #2e7d4f;
+  color: white;
+  background: #2e7d4f;
+}
+
+.choices button:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.note {
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+  color: #4b5a52;
+}
+
+.note input {
+  padding: 8px 10px;
+  border: 1px solid #c9d6ce;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 14px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.primary,
+.secondary {
+  padding: 9px 14px;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.primary {
+  border: 0;
+  color: white;
+  background: #2e7d4f;
+}
+
+.secondary {
+  border: 1px solid #c9d6ce;
+  color: #2f4a3c;
+  background: white;
+}
+
+.primary:disabled,
+.secondary:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.verdict {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 12px;
+}
+
+.verdict strong {
+  font-size: 16px;
+}
+
+.verdict small {
+  font-size: 12px;
+}
+
+.isViolation {
+  color: #8a2a1f;
+  background: #fbeceb;
+}
+
+.isLawful {
+  color: #1f5a37;
+  background: #e8f4ec;
+}
+
+.assumption {
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: #5b4a1f;
+  background: #fbf5e6;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.assumption p {
+  margin: 0 0 4px;
+}
+
+.assumption ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.checklist {
+  display: grid;
+  gap: 6px;
+}
+
+.checklist small {
+  color: #4b5a52;
+  font-size: 12px;
+}

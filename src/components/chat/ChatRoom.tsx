@@ -9,15 +9,17 @@ import { MAX_MESSAGE_LENGTH, type ChatMessage } from '@/lib/chat';
 import { cx } from '@/lib/cx';
 import { formatNumber } from '@/lib/format';
 import type { IssueId } from '@/lib/intake';
-import { answerQuestion, RagApiError } from '@/lib/rag-client';
+import { answerQuestion, RagApiError, requestJudge, type JudgeAnswer } from '@/lib/rag-client';
 import { useLawStatus } from '@/lib/use-law-status';
 import {
   AnswerMessage,
   CategoryPromptMessage,
   ErrorMessage,
   FactCheckMessage,
+  FollowUpMessage,
   IntroMessage,
   IssuePickMessage,
+  JudgeAnswerMessage,
   PendingMessage,
   RagAnswerMessage,
   UserMessage,
@@ -43,10 +45,10 @@ type AskOptions = {
 };
 
 /**
- * 상담 흐름
- * 1. 유형 선택 → 2. 상황 입력 → 3. 질문에서 점검할 쟁점을 정하고(애매하면 고르게 함)
- * 4. 사실 확인 카드가 부족한 값만 묻고 확인된 값으로 판정한다.
- * 쟁점이 없는 질문은 기존 검색·생성 답변(/api/rag/answer)으로 넘긴다.
+ * 상담 흐름 (대화 최대 2번)
+ * 1. 유형 선택(작성 도우미 칩) → 2. 상황 입력 → 3. 판정(/api/rag/judge)
+ * 4. 결론을 바꿀 사실이 빠졌으면 추가 질문을 한 번만 하고, 답하거나 건너뛰면 반드시
+ *    침해/침해 아님으로 판정한다. 예전 쟁점 선택·사실 확인 카드는 화면 코드만 남아 있다.
  */
 export function ChatRoom({
   initialQuestion,
@@ -139,7 +141,89 @@ export function ChatRoom({
     }
   }, []);
 
-  // 쟁점이 정해진 질문은 사실 확인 카드로 넘긴다. 카드가 스스로 점검 API를 부른다.
+  // 판정: 첫 호출은 추가 질문을 돌려줄 수 있고, 답(answers)이나 final이 있으면 반드시 판정한다.
+  const runJudge = useCallback(
+    async (
+      question: string,
+      categoryId: CategoryId,
+      options: {
+        answers?: JudgeAnswer[];
+        final?: boolean;
+        retryId?: string;
+        followUpId?: string;
+      } = {},
+    ) => {
+      if (activeRequest.current) return;
+      const controller = new AbortController();
+      activeRequest.current = controller;
+      const replyId = options.retryId || newId();
+      const pending: ChatMessage = { id: replyId, role: 'assistant', kind: 'pending' };
+      setMessages((prev) => {
+        const marked = options.followUpId
+          ? prev.map((message) =>
+              message.id === options.followUpId &&
+              message.role === 'assistant' &&
+              message.kind === 'follow-up'
+                ? { ...message, submitted: true }
+                : message,
+            )
+          : prev;
+        return options.retryId
+          ? marked.map((message) => (message.id === options.retryId ? pending : message))
+          : [...marked, pending];
+      });
+      setIsBusy(true);
+      try {
+        const result = await requestJudge(
+          { question, category: categoryId, answers: options.answers, final: options.final },
+          controller.signal,
+        );
+        if (activeRequest.current !== controller) return;
+        const next: ChatMessage =
+          result.status === 'needs_follow_up'
+            ? {
+                id: replyId,
+                role: 'assistant',
+                kind: 'follow-up',
+                question,
+                category: categoryId,
+                questions: result.questions,
+              }
+            : { id: replyId, role: 'assistant', kind: 'judge-answer', result };
+        setMessages((prev) => prev.map((message) => (message.id === replyId ? next : message)));
+      } catch (error) {
+        if (controller.signal.aborted || activeRequest.current !== controller) return;
+        const text =
+          error instanceof RagApiError
+            ? error.message
+            : '연결이 끊겼어요. 서버가 실행 중인지 확인하고 다시 시도해 주세요.';
+        setMessages((prev) =>
+          prev.map((message) =>
+            message.id === replyId
+              ? {
+                  id: replyId,
+                  role: 'assistant',
+                  kind: 'error',
+                  text,
+                  question,
+                  category: categoryId,
+                  answers: options.answers,
+                  final: options.final,
+                }
+              : message,
+          ),
+        );
+      } finally {
+        if (activeRequest.current === controller) {
+          activeRequest.current = null;
+          setIsBusy(false);
+        }
+      }
+    },
+    [],
+  );
+
+  // (예전 흐름) 쟁점이 정해진 질문은 사실 확인 카드로 넘긴다. 카드가 스스로 점검 API를 부른다.
   const startFactCheck = useCallback((question: string, categoryId: CategoryId, issue: IssueId) => {
     setMessages((prev) => [
       ...prev,
@@ -159,10 +243,22 @@ export function ChatRoom({
     (question: string, current: Category) => {
       const text = question.trim().slice(0, MAX_MESSAGE_LENGTH);
       if (!text) return;
+      if (activeRequest.current) return;
       setDraft('');
-      void ask(text, { categoryId: current.id });
+      // 첫 질문을 보내면 유형 선택·안내 메시지는 숨긴다.
+      setMessages((prev) => [
+        ...prev.filter(
+          (message) =>
+            !(
+              message.role === 'assistant' &&
+              (message.kind === 'intro' || message.kind === 'category-prompt')
+            ),
+        ),
+        { id: newId(), role: 'user', text, category: current.id },
+      ]);
+      void runJudge(text, current.id);
     },
-    [ask],
+    [runJudge],
   );
 
   const pickIssue = (messageId: string, issue: IssueId) => {
@@ -226,6 +322,14 @@ export function ChatRoom({
 
   const fillDraft = (text: string) => {
     setDraft(text.slice(0, MAX_MESSAGE_LENGTH));
+    inputRef.current?.focus();
+  };
+
+  // 작성 도우미: "항목: "을 입력창 끝에 덧붙인다.
+  const appendDraft = (label: string) => {
+    setDraft((current) =>
+      `${current.trim() ? `${current.trimEnd()}\n` : ''}${label}: `.slice(0, MAX_MESSAGE_LENGTH),
+    );
     inputRef.current?.focus();
   };
 
@@ -331,6 +435,7 @@ export function ChatRoom({
                     key={message.id}
                     category={message.category}
                     onSelect={fillDraft}
+                    onAppend={appendDraft}
                   />
                 );
               case 'issue-pick':
@@ -358,6 +463,24 @@ export function ChatRoom({
                     }
                   />
                 );
+              case 'follow-up':
+                return (
+                  <FollowUpMessage
+                    key={message.id}
+                    questions={message.questions}
+                    submitted={!!message.submitted}
+                    disabled={isBusy}
+                    onSubmit={(answers) =>
+                      void runJudge(message.question, message.category, {
+                        answers,
+                        final: true,
+                        followUpId: message.id,
+                      })
+                    }
+                  />
+                );
+              case 'judge-answer':
+                return <JudgeAnswerMessage key={message.id} result={message.result} />;
               case 'answer':
                 return (
                   <AnswerMessage key={message.id} answer={message.answer} onSelect={fillDraft} />
@@ -375,8 +498,9 @@ export function ChatRoom({
                     text={message.text}
                     disabled={isBusy}
                     onRetry={() =>
-                      void ask(message.question, {
-                        categoryId: message.category ?? 'other',
+                      void runJudge(message.question, message.category ?? 'other', {
+                        answers: message.answers,
+                        final: message.final,
                         retryId: message.id,
                       })
                     }

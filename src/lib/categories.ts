@@ -18,6 +18,8 @@ export type Category = {
   hint: string;
   /** 눌러서 입력창에 바로 채울 수 있는 예시 문장 */
   examples: string[];
+  /** 함께 적으면 추가 질문 없이 바로 판정하기 쉬운 항목. 누르면 입력창에 항목 이름이 들어간다 */
+  checklist: string[];
 };
 
 export const CATEGORIES: Category[] = [
@@ -33,6 +35,13 @@ export const CATEGORIES: Category[] = [
       '시급이 최저임금보다 적은 것 같아요.',
       '월급을 제때 못 받았어요.',
     ],
+    checklist: [
+      '시급 또는 월급',
+      '주 며칠·하루 몇 시간',
+      '일한 기간',
+      '직원 수',
+      '무슨 일이 있었는지',
+    ],
   },
   {
     id: 'hours',
@@ -45,6 +54,7 @@ export const CATEGORIES: Category[] = [
       '하루 6시간 일하는데 쉬는 시간이 없어요.',
       '정해진 시간보다 늦게 끝나는 날이 많아요.',
     ],
+    checklist: ['하루 근무시간', '실제로 쉰 시간', '주 며칠', '직원 수', '무슨 일이 있었는지'],
   },
   {
     id: 'contract',
@@ -54,6 +64,7 @@ export const CATEGORIES: Category[] = [
     placeholder: '예: 일한 지 한 달이 됐는데 계약서를 안 써 줘요.',
     hint: '계약서를 썼는지, 썼다면 어떤 내용이 문제인지 적어 주세요.',
     examples: ['근로계약서를 안 써 줘요.', '계약서 내용이 처음 말과 달라요.'],
+    checklist: ['계약서를 썼는지', '계약 기간', '주 며칠·하루 몇 시간', '문제가 된 내용'],
   },
   {
     id: 'dismissal',
@@ -63,6 +74,7 @@ export const CATEGORIES: Category[] = [
     placeholder: '예: 어제 문자로 갑자기 내일부터 나오지 말라고 했어요.',
     hint: '일한 기간과 어떻게 전달받았는지(말·문자)를 함께 적으면 더 정확해요.',
     examples: ['갑자기 그만 나오라는 말을 들었어요.', '그만뒀는데 마지막 월급을 안 줘요.'],
+    checklist: ['일한 기간', '언제·어떻게 통보받았는지', '직원 수', '못 받은 돈이 있는지'],
   },
   {
     id: 'leave',
@@ -72,6 +84,12 @@ export const CATEGORIES: Category[] = [
     placeholder: '예: 쉬는 날 없이 매일 출근하고 있어요.',
     hint: '주 며칠 일하는지, 쉬는 날이 있는지 함께 적으면 더 정확해요.',
     examples: ['쉬는 날 없이 매주 7일 일해요.', '공휴일에 일했는데 아무것도 못 받았어요.'],
+    checklist: [
+      '주 며칠·하루 몇 시간',
+      '일한 기간',
+      '직원 수',
+      '쉬는 날·휴가에 무슨 일이 있었는지',
+    ],
   },
   {
     id: 'other',
@@ -81,6 +99,7 @@ export const CATEGORIES: Category[] = [
     placeholder: '지금 겪는 상황을 적어 주세요',
     hint: '언제부터, 주 며칠·하루 몇 시간 일했는지 함께 적으면 더 정확해요.',
     examples: [],
+    checklist: ['나이(만 18세 미만인지)', '일한 기간', '직원 수', '무슨 일이 있었는지'],
   },
 ];
 

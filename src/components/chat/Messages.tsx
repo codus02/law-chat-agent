@@ -4,8 +4,10 @@ import type { Answer } from '@/lib/chat';
 import { cx } from '@/lib/cx';
 import { ISSUES, type IssueId } from '@/lib/intake';
 import { AnswerCard } from './AnswerCard';
-import type { AnswerResult } from '@/lib/rag-client';
+import type { AnswerResult, JudgeAnswer, JudgeResult } from '@/lib/rag-client';
 import { FactCheckCard } from './FactCheckCard';
+import { FollowUpCard, JudgeAnswerCard } from './JudgeCards';
+import judgeStyles from './judge.module.css';
 import { RagAnswerCard } from './RagAnswerCard';
 import styles from './chat.module.css';
 
@@ -84,9 +86,12 @@ export function IntroMessage({
 export function CategoryPromptMessage({
   category,
   onSelect,
+  onAppend,
 }: {
   category: Category;
   onSelect: (text: string) => void;
+  /** 작성 도우미: 항목 이름을 입력창에 덧붙인다 */
+  onAppend: (label: string) => void;
 }) {
   const isOther = category.id === 'other';
   return (
@@ -97,9 +102,23 @@ export function CategoryPromptMessage({
         </strong>
         <p className={styles.introText}>
           지금 겪는 상황을 자유롭게 적어 주세요. 법 용어를 몰라도 괜찮아요. 판단에 꼭 필요한 정보가
-          빠졌을 때만 제가 먼저 여쭤볼게요.
+          빠졌을 때만 한 번 여쭤보고, 그다음엔 반드시 침해인지 아닌지 알려 드릴게요.
         </p>
       </div>
+      {category.checklist.length > 0 && (
+        <div className={judgeStyles.checklist}>
+          <small>
+            아래 내용을 함께 적으면 추가 질문 없이 바로 답할 수 있어요. 누르면 입력창에 들어가요.
+          </small>
+          <div className={styles.suggestionChips}>
+            {category.checklist.map((item) => (
+              <button key={item} type="button" onClick={() => onAppend(item)}>
+                + {item}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       {category.examples.length > 0 && (
         <div className={styles.suggestionChips}>
           {category.examples.map((example) => (
@@ -187,6 +206,40 @@ export function FactCheckMessage({
   );
 }
 
+export function FollowUpMessage({
+  questions,
+  submitted,
+  disabled,
+  onSubmit,
+}: {
+  questions: string[];
+  submitted: boolean;
+  disabled: boolean;
+  onSubmit: (answers: JudgeAnswer[]) => void;
+}) {
+  return (
+    <AssistantMessage>
+      <FollowUpCard
+        questions={questions}
+        submitted={submitted}
+        disabled={disabled}
+        onSubmit={onSubmit}
+      />
+    </AssistantMessage>
+  );
+}
+
+export function JudgeAnswerMessage({ result }: { result: JudgeResult }) {
+  return (
+    <AssistantMessage>
+      <JudgeAnswerCard result={result} />
+      <p className={styles.answerDisclaimer}>
+        법률 정보 제공을 위한 답변이며, 구체적 분쟁은 전문가 상담이 필요할 수 있어요.
+      </p>
+    </AssistantMessage>
+  );
+}
+
 export function AnswerMessage({
   answer,
   onSelect,
@@ -208,9 +261,10 @@ export function PendingMessage() {
   return (
     <AssistantMessage>
       <div className={styles.messageBubble} role="status">
-        <strong className={styles.introTitle}>근거를 찾아 답변을 준비하고 있어요.</strong>
+        <strong className={styles.introTitle}>관련 법령을 찾아 판단하고 있어요.</strong>
         <p className={styles.introText}>
-          로컬 모델이 답변을 생성하고 있어요. 첫 질문은 모델을 불러오는 데 시간이 더 걸릴 수 있어요.
+          로컬 모델이 판단하고 있어요. 보통 1~3분 걸리고, 첫 질문은 모델을 불러오느라 더 걸릴 수
+          있어요.
         </p>
       </div>
     </AssistantMessage>

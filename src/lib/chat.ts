@@ -35,7 +35,7 @@ export type Answer = {
 
 import type { Category, CategoryId } from './categories';
 import type { IssueId } from './intake';
-import type { AnswerResult } from './rag-client';
+import type { AnswerResult, JudgeAnswer, JudgeResult } from './rag-client';
 
 export type ChatMessage =
   | { id: string; role: 'user'; text: string; category?: CategoryId }
@@ -62,6 +62,18 @@ export type ChatMessage =
       category: CategoryId;
       issue: IssueId;
     }
+  /** 판정 전에 결론을 바꿀 수 있는 사실을 한 번만 묻는다 */
+  | {
+      id: string;
+      role: 'assistant';
+      kind: 'follow-up';
+      question: string;
+      category: CategoryId;
+      questions: string[];
+      submitted?: boolean;
+    }
+  /** 최종 판정: 항상 침해 또는 침해 아님 */
+  | { id: string; role: 'assistant'; kind: 'judge-answer'; result: JudgeResult }
   | { id: string; role: 'assistant'; kind: 'answer'; answer: Answer }
   | { id: string; role: 'assistant'; kind: 'rag-answer'; answer: AnswerResult }
   | {
@@ -71,6 +83,9 @@ export type ChatMessage =
       text: string;
       question: string;
       category?: CategoryId;
+      /** 추가 질문에 답한 뒤 실패했다면 그 답을 다시 보낸다 */
+      answers?: JudgeAnswer[];
+      final?: boolean;
     }
   | { id: string; role: 'assistant'; kind: 'pending' };
 
