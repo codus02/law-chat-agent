@@ -94,7 +94,7 @@ export function FactCheckCard({
         (key) => data.facts[key] !== null && !['as_of_date', 'korea'].includes(key),
       );
       setIntake(data);
-      // 기준일은 검토된 자료의 기준일로 고정하고, 근무지는 대한민국을 기본값으로 둔다.
+      // 기준일은 서버가 돌려준 오늘 날짜(법령 확인 범위 안에서만 판정), 근무지는 대한민국을 기본값으로 둔다.
       setValues({ ...data.facts, as_of_date: data.as_of_date, korea: data.facts.korea ?? true });
       setUnconfirmed(suggested);
       setEditing([]);
@@ -330,7 +330,7 @@ export function FactCheckCard({
             <summary>
               <span>적용 범위 확인</span>
               <small>
-                {intake.as_of_date} 기준 법령 ·{' '}
+                {intake.as_of_date} 기준 ·{' '}
                 {values.korea === false ? '대한민국 외 근무' : '대한민국 근무'}
                 {premiseFields.every((f) => values[f.key] !== null && values[f.key] !== undefined)
                   ? ' · 확인 완료'
@@ -338,8 +338,12 @@ export function FactCheckCard({
               </small>
             </summary>
             <p className={styles.premiseNote}>
-              이 점검은 {intake.as_of_date}에 수집한 법령 기준이에요. 아래 조건에 맞지 않으면
-              판정하지 않고 범위 밖이라고 알려드려요.
+              {intake.law_status
+                ? intake.law_status.today_supported
+                  ? `오늘(${intake.as_of_date}) 기준으로 점검해요. 판정에 쓰는 조문이 현행 법령과 같은지 ${intake.law_status.verified_through}에 확인했어요.`
+                  : `판정에 쓰는 조문이 현행 법령과 같은지 ${intake.law_status.verified_through}까지만 확인됐어요. 오늘 날짜는 법령 확인이 끝난 뒤에 판정할 수 있어요.`
+                : `이 점검은 ${intake.as_of_date} 기준 법령으로 해요.`}{' '}
+              아래 조건에 맞지 않으면 판정하지 않고 범위 밖이라고 알려드려요.
             </p>
             <ul className={styles.fields}>
               {premiseFields.map((field) => (

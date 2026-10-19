@@ -62,11 +62,24 @@ export type IntakeField = {
   type: 'date' | 'boolean' | 'integer' | 'number' | 'choice';
   value: FactValue;
 };
+/** 고정한 근거 조문이 현행 법령과 같은지 매일 확인한 결과 */
+export type LawStatus = {
+  pinned_as_of: string;
+  valid_from: string;
+  verified_through: string;
+  today: string;
+  today_supported: boolean;
+  last_checked_at: string | null;
+  last_result: 'unchanged' | 'changed' | 'failed' | 'never_checked';
+  changed: string[];
+};
 export type IntakeResult = {
   question: string;
   issue: IssueId;
   facts: Facts;
+  /** 점검 기준일(기본은 오늘). 규칙은 law_status의 확인 범위 안의 날짜만 판정한다. */
   as_of_date: string;
+  law_status?: LawStatus;
   fields: IntakeField[];
   missing_fields: string[];
   confirmed: boolean;
@@ -141,6 +154,39 @@ export const searchEvidence = (question: string, options: Options = {}) =>
   post<SearchResult>('/api/rag/search', question, options);
 export const answerQuestion = (question: string, options: Options = {}) =>
   post<AnswerResult>('/api/rag/answer', question, options);
+
+/** 판정(/api/rag/judge): 모든 질문을 침해/침해 아님으로 끝낸다. 부족하면 추가 질문을 한 번 돌려준다. */
+export type JudgeAnswer = { question: string; answer: string };
+export type JudgeResult = {
+  status: 'needs_follow_up' | 'judged';
+  verdict: '침해' | '침해 아님' | null;
+  questions: string[];
+  sections?: AnswerSection[];
+  sources?: { id: string; title: string; url: string }[];
+  /** "모름"으로 답한 질문. 판정은 그 사실 없이 내린 것이다. */
+  assumed_unknowns?: string[];
+  /** rule: 확인한 사실로 규칙이 판정, model: 미세조정 Gemma가 판정 */
+  origin?: 'rule' | 'model';
+  /** 규칙 판정에서 글에 없어 기본값으로 본 전제(예: 성인 근로자) */
+  assumptions?: string[];
+  model: string;
+  model_calls: number;
+  reference_date: string;
+  elapsed_ms: number;
+};
+
+export const requestJudge = (
+  body: { question: string; category?: CategoryId; answers?: JudgeAnswer[]; final?: boolean },
+  signal?: AbortSignal,
+) => {
+  const { category, ...rest } = body;
+  const apiCategory = category === 'dismissal' ? 'termination' : category;
+  return postJson<JudgeResult>(
+    '/api/rag/judge',
+    { ...rest, ...(apiCategory ? { category: apiCategory } : {}) },
+    signal,
+  );
+};
 
 export type DeepReadResult = {
   status: 'skipped' | 'failed' | 'done';

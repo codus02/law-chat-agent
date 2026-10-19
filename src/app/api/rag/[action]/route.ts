@@ -10,6 +10,8 @@ const TIMEOUT_MS: Record<string, number> = {
   intake: 30_000,
   // 긴 글 자세히 읽기: 로컬 LLM이 CPU에서 글당 1분 안팎 걸린다.
   'intake-deep': 300_000,
+  // 판정: 로컬 Gemma가 CPU에서 질문당 1~3분 걸린다.
+  judge: 600_000,
 };
 
 export async function POST(request: NextRequest, context: RouteContext<'/api/rag/[action]'>) {
