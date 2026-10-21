@@ -212,6 +212,9 @@ export type Tone = 'danger' | 'warning' | 'info' | 'ok';
 export type Section =
   'period' | 'place' | 'hours' | 'days' | 'wage' | 'leave' | 'insurance' | 'copy' | 'confirm';
 
+/** 점검 결과가 가리키는 입력칸. 요일별 근로시간은 `daily:월요일`처럼 쓴다. */
+export type FieldKey = keyof Draft | `daily:${string}`;
+
 export type Finding = {
   section: Section;
   tone: Tone;
@@ -219,6 +222,10 @@ export type Finding = {
   text: string;
   /** 짧은 법령명·조문 */
   basis?: string;
+  /** 이 결과 때문에 고쳐야 할 입력칸. 화면에서 해당 칸 테두리를 강조한다. */
+  fields?: FieldKey[];
+  /** 이 결과를 일으킨 입력칸(고칠 칸은 아님). 여기에 값이 있으면 고칠 칸이 비어 있어도 바로 강조한다. */
+  causes?: FieldKey[];
 };
 
 export function requiredBreakMinutes(hours: number): number {
@@ -238,6 +245,7 @@ export function checkDraft(draft: Draft): { findings: Finding[]; derived: Derive
       section: 'period',
       tone: 'warning',
       title: '근로개시일이 비어 있어요',
+      fields: ['startDate'],
       text: '언제부터 일하는지 날짜를 적으세요.',
       basis: '근로기준법 제17조',
     });
@@ -246,6 +254,7 @@ export function checkDraft(draft: Draft): { findings: Finding[]; derived: Derive
       section: 'period',
       tone: 'warning',
       title: '계약 종료일 또는 기간의 정함 없음을 표시하세요',
+      fields: ['endDate'],
       text: '기간을 정하지 않는 계약이면 체크하고, 정한다면 종료일을 적으세요.',
     });
   } else if (draft.endDate && !draft.indefinite && draft.endDate < draft.startDate) {
@@ -253,6 +262,7 @@ export function checkDraft(draft: Draft): { findings: Finding[]; derived: Derive
       section: 'period',
       tone: 'danger',
       title: '계약 종료일이 시작일보다 빨라요',
+      fields: ['startDate', 'endDate'],
       text: '날짜를 다시 확인하세요.',
     });
   } else if (d.contractMonths !== null && d.contractMonths > 24) {
@@ -260,6 +270,7 @@ export function checkDraft(draft: Draft): { findings: Finding[]; derived: Derive
       section: 'period',
       tone: 'info',
       title: '기간제 계약이 2년을 넘어요',
+      fields: ['endDate'],
       text: '같은 사용자와 2년을 넘겨 기간제로 일하면 원칙적으로 기간을 정하지 않은 계약으로 봅니다.',
       basis: '기간제법 제4조',
     });
@@ -271,6 +282,10 @@ export function checkDraft(draft: Draft): { findings: Finding[]; derived: Derive
       section: 'place',
       tone: 'warning',
       title: '근무 장소와 업무 내용은 필수 기재사항이에요',
+      fields: [
+        ...(!draft.workplace.trim() ? (['workplace'] as const) : []),
+        ...(!draft.duties.trim() ? (['duties'] as const) : []),
+      ],
       text: '지점명·주소와 실제 맡을 일을 구체적으로 적으세요.',
       basis: '근로기준법 제17조',
     });
@@ -282,6 +297,10 @@ export function checkDraft(draft: Draft): { findings: Finding[]; derived: Derive
       section: 'hours',
       tone: 'warning',
       title: '근로 시작·종료 시각을 적으세요',
+      fields: [
+        ...(!draft.workStart ? (['workStart'] as const) : []),
+        ...(!draft.workEnd ? (['workEnd'] as const) : []),
+      ],
       text: '소정근로시간은 서면 명시 항목이에요.',
       basis: '근로기준법 제17조',
     });
@@ -293,6 +312,7 @@ export function checkDraft(draft: Draft): { findings: Finding[]; derived: Derive
         section: 'hours',
         tone: 'warning',
         title: '휴게 시작·종료 시각을 둘 다 적으세요',
+        fields: [draft.breakStart ? 'breakEnd' : 'breakStart'],
         text: '한쪽만 적혀 있어 휴게 길이를 계산할 수 없어요.',
       });
     } else if (required > 0 && breakMinutes < required) {
@@ -300,6 +320,8 @@ export function checkDraft(draft: Draft): { findings: Finding[]; derived: Derive
         section: 'hours',
         tone: 'danger',
         title: `휴게시간이 ${required - breakMinutes}분 부족해요`,
+        fields: ['breakStart', 'breakEnd'],
+        causes: ['workStart', 'workEnd'],
         text: `하루 ${formatHours(d.dailyWorkHours)}시간 근로에는 근로 도중 ${required}분 이상의 휴게가 필요해요. 지금은 ${breakMinutes}분이에요.`,
         basis: '근로기준법 제54조',
       });
@@ -308,6 +330,8 @@ export function checkDraft(draft: Draft): { findings: Finding[]; derived: Derive
         section: 'hours',
         tone: 'danger',
         title: '휴게가 근로시간 밖에 있어요',
+        fields: ['breakStart', 'breakEnd'],
+        causes: ['workStart', 'workEnd'],
         text: '휴게는 근로시간 도중에 주어야 해요. 출근 전·퇴근 후 시간은 휴게로 보지 않아요.',
         basis: '근로기준법 제54조',
       });
@@ -337,6 +361,7 @@ export function checkDraft(draft: Draft): { findings: Finding[]; derived: Derive
       section: 'days',
       tone: 'warning',
       title: '근무 요일을 정하세요',
+      fields: ['workdays'],
       text: '단시간 근로자는 근로일과 근로일별 근로시간을 서면에 적어야 해요.',
       basis: '기간제법 제17조',
     });
@@ -346,6 +371,7 @@ export function checkDraft(draft: Draft): { findings: Finding[]; derived: Derive
       section: 'days',
       tone: 'danger',
       title: '매일 근무로 되어 있어 주휴일을 둘 수 없어요',
+      fields: ['workdays'],
       text: '1주에 평균 1회 이상의 유급휴일이 있어야 해요.',
       basis: '근로기준법 제55조',
     });
@@ -355,6 +381,7 @@ export function checkDraft(draft: Draft): { findings: Finding[]; derived: Derive
       section: 'days',
       tone: 'danger',
       title: '주휴일이 근무 요일과 겹쳐요',
+      fields: ['weeklyHoliday'],
       text: '주휴일은 근무하지 않는 요일로 정하세요.',
       basis: '근로기준법 제55조',
     });
@@ -365,9 +392,34 @@ export function checkDraft(draft: Draft): { findings: Finding[]; derived: Derive
       section: 'days',
       tone: 'warning',
       title: `${missingDaily.join('·')} 근로시간이 비어 있어요`,
+      fields: missingDaily.map((day): FieldKey => `daily:${day}`),
       text: '요일별 근로시간은 단시간 근로계약의 필수 기재사항이에요.',
       basis: '기간제법 제17조',
     });
+  }
+  // 요일마다 근로시간이 다를 수 있어, 각 요일 시간에 필요한 휴게를 3번 휴게와 비교한다.
+  if (d.breakMinutes !== null) {
+    const givenBreak = d.breakMinutes;
+    const shortDays = draft.workdays.filter((day) => {
+      const hours = Number(draft.dailyHours[day]);
+      return hours > 0 && requiredBreakMinutes(hours) > givenBreak;
+    });
+    if (shortDays.length > 0) {
+      const dayFields = shortDays.map((day): FieldKey => `daily:${day}`);
+      const breakShort = findings.find((f) => f.title.startsWith('휴게시간이 '));
+      if (breakShort) {
+        breakShort.fields = [...(breakShort.fields ?? []), ...dayFields];
+      } else {
+        push({
+          section: 'days',
+          tone: 'danger',
+          title: `${shortDays.map((day) => day.slice(0, 1)).join('·')}요일 근로시간에 맞는 휴게가 부족해요`,
+          fields: [...dayFields, 'breakStart', 'breakEnd'],
+          text: `하루 4시간 이상 일하면 근로 도중 30분, 8시간 이상이면 1시간 이상 쉬어야 해요. 지금 휴게는 ${givenBreak}분이에요. 3번 휴게 시각을 확인하세요.`,
+          basis: '근로기준법 제54조',
+        });
+      }
+    }
   }
   if (d.weeklyHours !== null) {
     if (d.weeklyHours >= 15 && !draft.weeklyHoliday) {
@@ -375,6 +427,7 @@ export function checkDraft(draft: Draft): { findings: Finding[]; derived: Derive
         section: 'days',
         tone: 'warning',
         title: '주휴일 요일을 정하세요',
+        fields: ['weeklyHoliday'],
         text: `주 ${formatHours(d.weeklyHours)}시간 근로는 유급 주휴일 대상이에요. 요일을 계약서에 적으세요.`,
         basis: '근로기준법 제55조·제18조',
       });
@@ -404,6 +457,7 @@ export function checkDraft(draft: Draft): { findings: Finding[]; derived: Derive
       section: 'wage',
       tone: 'warning',
       title: '기본 임금을 적으세요',
+      fields: ['basePay'],
       text: '임금의 구성항목·계산방법·지급방법은 서면 명시 항목이에요.',
       basis: '근로기준법 제17조',
     });
@@ -420,6 +474,7 @@ export function checkDraft(draft: Draft): { findings: Finding[]; derived: Derive
           section: 'wage',
           tone: 'warning',
           title: '수습 감액 범위 안이지만 조건을 확인하세요',
+          fields: ['basePay'],
           text: `${label} ${formatNumber(Math.round(hourly))}원은 최저임금의 90%(${formatNumber(PROBATION_MINIMUM_WAGE)}원) 이상이에요. 감액은 1년 이상 계약의 수습 시작 3개월까지만, 단순노무 업무는 불가예요.`,
           basis: '최저임금법 제5조 제2항',
         });
@@ -428,6 +483,7 @@ export function checkDraft(draft: Draft): { findings: Finding[]; derived: Derive
           section: 'wage',
           tone: 'danger',
           title: '최저임금보다 낮아요',
+          fields: ['basePay'],
           text: `${label} ${formatNumber(Math.round(hourly))}원은 2026년 최저임금 ${formatNumber(MINIMUM_WAGE_2026)}원보다 ${formatNumber(Math.round(MINIMUM_WAGE_2026 - hourly))}원 적어요.${draft.probation ? ' 수습 감액은 1년 이상 계약에서 최저임금의 90%까지만 가능해요.' : ''} 최저임금에 못 미치는 부분은 무효이고 최저임금액을 지급해야 해요.`,
           basis: '최저임금법 제6조',
         });
@@ -457,6 +513,7 @@ export function checkDraft(draft: Draft): { findings: Finding[]; derived: Derive
       section: 'wage',
       tone: 'warning',
       title: '임금 지급일을 적으세요',
+      fields: ['payDay'],
       text: '지급일과 지급방법은 서면 명시 항목이에요. 지급일이 휴일이면 그 전날 지급해요.',
       basis: '근로기준법 제17조·제43조',
     });
@@ -484,6 +541,7 @@ export function checkDraft(draft: Draft): { findings: Finding[]; derived: Derive
       section: 'insurance',
       tone: 'warning',
       title: '산재보험이 빠져 있어요',
+      fields: ['insurance'],
       text: '산재보험은 단시간 근로자에게도 적용돼요.',
     });
   }
@@ -494,6 +552,7 @@ export function checkDraft(draft: Draft): { findings: Finding[]; derived: Derive
       section: 'copy',
       tone: 'danger',
       title: '계약서 사본을 받기로 표시하세요',
+      fields: ['copyProvided'],
       text: '사용자는 서면 명시 사항이 적힌 계약서를 근로자에게 교부해야 해요. 종이나 전자문서 모두 가능해요.',
       basis: '근로기준법 제17조 제2항',
     });

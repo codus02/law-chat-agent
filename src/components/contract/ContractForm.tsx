@@ -6,12 +6,14 @@ import {
   checkDraft,
   CONFIRMATIONS,
   formatHours,
+  requiredBreakMinutes,
   INSURANCE,
   MINIMUM_WAGE_2026,
   SECTION_TITLES,
   summarize,
   WEEKDAYS,
   type Draft,
+  type FieldKey,
   type Finding,
   type Section,
 } from '@/lib/contract-draft';
@@ -47,29 +49,45 @@ function Findings({ items }: { items: Finding[] }) {
   );
 }
 
-/** 종이 계약서의 한 줄: 왼쪽 항목명, 오른쪽 내용. */
+/**
+ * 종이 계약서의 한 줄: 왼쪽 항목명, 오른쪽 내용. 항목명 아래에 경고·확인 개수를 붙여
+ * 어느 줄을 고쳐야 하는지 훑어볼 수 있게 한다.
+ */
 function Row({
   no,
   title,
+  section,
+  items,
   hint,
   children,
 }: {
   no: number;
   title: string;
+  section: Section;
+  items: Finding[];
   hint?: ReactNode;
   children: ReactNode;
 }) {
+  const danger = items.filter((f) => f.tone === 'danger').length;
+  const warning = items.filter((f) => f.tone === 'warning').length;
   return (
-    <section className={styles.row}>
+    <section id={`row-${section}`} className={cx(styles.row, danger > 0 && styles.rowDanger)}>
       <div className={styles.rowHead}>
         <h3>
           <span className={styles.rowNo}>{no}.</span>
           {title}
         </h3>
+        {(danger > 0 || warning > 0) && (
+          <p className={styles.rowFlags}>
+            {danger > 0 && <span className={styles.danger}>경고 {danger}</span>}
+            {warning > 0 && <span className={styles.warning}>확인 {warning}</span>}
+          </p>
+        )}
       </div>
       <div className={styles.rowBody}>
         {hint && <p className={styles.hint}>{hint}</p>}
         {children}
+        <Findings items={items} />
       </div>
     </section>
   );
@@ -97,6 +115,76 @@ export function ContractForm({
   const summary = summarize(findings);
   const bySection = (section: Section) => findings.filter((f) => f.section === section);
 
+  // 입력칸마다 가장 심각한 점검 결과. 빈 칸 안내는 그 칸을 한 번 지나간 뒤에만 띄워,
+  // 처음 연 화면이 온통 빨갛지 않게 한다. 값을 넣은 칸의 문제는 바로 보여 준다.
+  const [touched, setTouched] = useState<ReadonlySet<string>>(() => new Set());
+  const fieldIssues = useMemo(() => {
+    const issues = new Map<FieldKey, Finding>();
+    for (const finding of findings) {
+      if (finding.tone !== 'danger' && finding.tone !== 'warning') continue;
+      for (const key of finding.fields ?? []) {
+        const current = issues.get(key);
+        if (!current || (current.tone === 'warning' && finding.tone === 'danger')) {
+          issues.set(key, finding);
+        }
+      }
+    }
+    return issues;
+  }, [findings]);
+  const hasValue = (key: FieldKey) => {
+    if (key.startsWith('daily:')) return Boolean(draft.dailyHours[key.slice(6)]?.trim());
+    const value = draft[key as keyof Draft];
+    if (typeof value === 'string') return value.trim() !== '';
+    if (Array.isArray(value)) return value.length > 0;
+    return value === true;
+  };
+  const issueOf = (key: FieldKey) => {
+    const issue = fieldIssues.get(key);
+    if (!issue) return null;
+    // 값을 넣은 칸 때문에 생긴 경고(예: 5시간 근무인데 휴게 없음)는 같이 고칠 빈 칸도 바로 표시한다.
+    const caused =
+      issue.tone === 'danger' && [...(issue.fields ?? []), ...(issue.causes ?? [])].some(hasValue);
+    return importedFrom || touched.has(key) || hasValue(key) || caused ? issue : null;
+  };
+  const noteId = (key: FieldKey) => `field-note-${key.replace(':', '-')}`;
+  /** 입력칸에 붙이는 속성: 강조 테두리, 스크린리더용 오류 표시와 안내 연결 */
+  const field = (key: FieldKey) => {
+    const issue = issueOf(key);
+    return {
+      'data-field': key,
+      className: issue ? (issue.tone === 'danger' ? styles.isDanger : styles.isWarning) : undefined,
+      'aria-invalid': issue?.tone === 'danger' ? true : undefined,
+      'aria-describedby': issue ? noteId(key) : undefined,
+    };
+  };
+  /** 여러 칸을 묶은 영역(요일 칸, 체크박스)의 강조 */
+  const groupTone = (key: FieldKey) => {
+    const issue = issueOf(key);
+    if (!issue) return undefined;
+    return issue.tone === 'danger' ? styles.groupDanger : styles.groupWarning;
+  };
+  /** 칸 바로 아래 짧은 안내. 좁은 요일 칸에는 필요한 휴게만 적는다. */
+  const note = (key: FieldKey) => {
+    const issue = issueOf(key);
+    if (!issue) return null;
+    let text = issue.title;
+    if (key.startsWith('daily:')) {
+      const hours = Number(draft.dailyHours[key.slice(6)]);
+      text = issue.title.includes('휴게')
+        ? `휴게 ${requiredBreakMinutes(hours)}분 이상 필요`
+        : '시간을 적으세요';
+    }
+    return (
+      <small id={noteId(key)} className={cx(styles.fieldNote, styles[issue.tone])}>
+        {TONE_LABEL[issue.tone]} · {text}
+      </small>
+    );
+  };
+  const markTouched = (target: EventTarget) => {
+    const key = (target as HTMLElement).closest?.('[data-field]')?.getAttribute('data-field');
+    if (key && !touched.has(key)) setTouched(new Set(touched).add(key));
+  };
+
   const set = <K extends keyof Draft>(key: K, value: Draft[K]) =>
     onChange({ ...draft, [key]: value });
   const toggle = (key: 'workdays' | 'insurance', value: string) =>
@@ -107,7 +195,11 @@ export function ContractForm({
 
   return (
     <div className={styles.formLayout}>
-      <form className={styles.form} onSubmit={(event) => event.preventDefault()}>
+      <form
+        className={styles.form}
+        onSubmit={(event) => event.preventDefault()}
+        onBlurCapture={(event) => markTouched(event.target)}
+      >
         {importedFrom && (
           <div className={styles.importedNote} role="status">
             <strong>{importedFrom}</strong>에서 읽은 내용으로 채웠어요. 잘못 읽은 값은 고치고, 비어
@@ -124,15 +216,23 @@ export function ContractForm({
             <span>고용노동부 양식 항목 순서</span>
           </div>
 
-          <Row no={1} title="근로계약기간" hint="기간을 정하지 않으면 근로개시일만 적어요.">
+          <Row
+            no={1}
+            title="근로계약기간"
+            section="period"
+            items={bySection('period')}
+            hint="기간을 정하지 않으면 근로개시일만 적어요."
+          >
             <div className={styles.grid}>
               <label>
                 근로개시일
                 <input
                   type="date"
+                  {...field('startDate')}
                   value={draft.startDate}
                   onChange={(e) => set('startDate', e.target.value)}
                 />
+                {note('startDate')}
               </label>
               <label>
                 계약 종료일
@@ -140,9 +240,11 @@ export function ContractForm({
                   type="date"
                   disabled={draft.indefinite}
                   min={draft.startDate || undefined}
+                  {...field('endDate')}
                   value={draft.endDate}
                   onChange={(e) => set('endDate', e.target.value)}
                 />
+                {note('endDate')}
               </label>
             </div>
             <label className={styles.check}>
@@ -159,34 +261,38 @@ export function ContractForm({
               />
               기간을 정하지 않음
             </label>
-            <Findings items={bySection('period')} />
           </Row>
 
-          <Row no={2} title="근무 장소와 업무">
+          <Row no={2} title="근무 장소와 업무" section="place" items={bySection('place')}>
             <div className={styles.grid}>
               <label>
                 근무 장소
                 <input
+                  {...field('workplace')}
                   value={draft.workplace}
                   onChange={(e) => set('workplace', e.target.value)}
                   placeholder="예: ○○편의점 ○○점"
                 />
+                {note('workplace')}
               </label>
               <label>
                 업무의 내용
                 <input
+                  {...field('duties')}
                   value={draft.duties}
                   onChange={(e) => set('duties', e.target.value)}
                   placeholder="예: 계산, 진열, 매장 정리"
                 />
+                {note('duties')}
               </label>
             </div>
-            <Findings items={bySection('place')} />
           </Row>
 
           <Row
             no={3}
             title="소정근로시간과 휴게"
+            section="hours"
+            items={bySection('hours')}
             hint="근로 시작·종료 시각과, 근로 도중의 휴게 시작·종료 시각을 적어요."
           >
             <div className={styles.grid}>
@@ -194,33 +300,41 @@ export function ContractForm({
                 근로 시작
                 <input
                   type="time"
+                  {...field('workStart')}
                   value={draft.workStart}
                   onChange={(e) => set('workStart', e.target.value)}
                 />
+                {note('workStart')}
               </label>
               <label>
                 근로 종료
                 <input
                   type="time"
+                  {...field('workEnd')}
                   value={draft.workEnd}
                   onChange={(e) => set('workEnd', e.target.value)}
                 />
+                {note('workEnd')}
               </label>
               <label>
                 휴게 시작
                 <input
                   type="time"
+                  {...field('breakStart')}
                   value={draft.breakStart}
                   onChange={(e) => set('breakStart', e.target.value)}
                 />
+                {note('breakStart')}
               </label>
               <label>
                 휴게 종료
                 <input
                   type="time"
+                  {...field('breakEnd')}
                   value={draft.breakEnd}
                   onChange={(e) => set('breakEnd', e.target.value)}
                 />
+                {note('breakEnd')}
               </label>
             </div>
             {derived.dailyWorkHours !== null && (
@@ -229,12 +343,13 @@ export function ContractForm({
                 {derived.breakMinutes !== null && ` · 휴게 ${derived.breakMinutes}분`}
               </p>
             )}
-            <Findings items={bySection('hours')} />
           </Row>
 
           <Row
             no={4}
             title="근무일과 주휴일"
+            section="days"
+            items={bySection('days')}
             hint={
               <>
                 단시간 근로자는 근로일과 근로일별 근로시간을 적어야 해요.{' '}
@@ -244,7 +359,12 @@ export function ContractForm({
               </>
             }
           >
-            <div className={styles.days} role="group" aria-label="근무 요일">
+            <div
+              className={cx(styles.days, groupTone('workdays'))}
+              role="group"
+              aria-label="근무 요일"
+              data-field="workdays"
+            >
               {WEEKDAYS.map((day) => (
                 <button
                   key={day}
@@ -257,6 +377,7 @@ export function ContractForm({
                 </button>
               ))}
             </div>
+            {note('workdays')}
             {draft.workdays.length > 0 && (
               <div className={styles.dailyHours}>
                 {WEEKDAYS.filter((day) => draft.workdays.includes(day)).map((day) => (
@@ -271,11 +392,13 @@ export function ContractForm({
                       placeholder={
                         derived.dailyWorkHours ? formatHours(derived.dailyWorkHours) : '시간'
                       }
+                      {...field(`daily:${day}`)}
                       value={draft.dailyHours[day] ?? ''}
                       onChange={(e) =>
                         set('dailyHours', { ...draft.dailyHours, [day]: e.target.value })
                       }
                     />
+                    {note(`daily:${day}`)}
                   </label>
                 ))}
               </div>
@@ -292,6 +415,7 @@ export function ContractForm({
               <label>
                 매주 주휴일
                 <select
+                  {...field('weeklyHoliday')}
                   value={draft.weeklyHoliday}
                   onChange={(e) => set('weeklyHoliday', e.target.value)}
                 >
@@ -302,6 +426,7 @@ export function ContractForm({
                     </option>
                   ))}
                 </select>
+                {note('weeklyHoliday')}
               </label>
             </div>
             {derived.weeklyHours !== null && (
@@ -312,12 +437,13 @@ export function ContractForm({
                 {derived.monthlyHours && ` · 월 환산 ${Math.round(derived.monthlyHours)}시간`}
               </p>
             )}
-            <Findings items={bySection('days')} />
           </Row>
 
           <Row
             no={5}
             title="임금"
+            section="wage"
+            items={bySection('wage')}
             hint={`2026년 최저임금은 시급 ${formatNumber(MINIMUM_WAGE_2026)}원이에요. 월급·일급은 근로시간으로 환산해 비교해요.`}
           >
             <div className={styles.grid}>
@@ -338,9 +464,11 @@ export function ContractForm({
                   type="number"
                   min="0"
                   inputMode="numeric"
+                  {...field('basePay')}
                   value={draft.basePay}
                   onChange={(e) => set('basePay', e.target.value)}
                 />
+                {note('basePay')}
               </label>
               <label>
                 임금 계산방법
@@ -380,10 +508,12 @@ export function ContractForm({
               <label>
                 임금 지급일
                 <input
+                  {...field('payDay')}
                   value={draft.payDay}
                   onChange={(e) => set('payDay', e.target.value)}
                   placeholder={draft.payCycle === '매월' ? '예: 10일, 말일' : '예: 금요일'}
                 />
+                {note('payDay')}
               </label>
               <label>
                 지급방법
@@ -404,17 +534,21 @@ export function ContractForm({
               />
               수습 기간 감액 조항이 있어요
             </label>
-            <Findings items={bySection('wage')} />
           </Row>
 
-          <Row no={6} title="연차유급휴가">
+          <Row no={6} title="연차유급휴가" section="leave" items={bySection('leave')}>
             <p className={styles.fixedText}>
               근로기준법에서 정하는 바에 따라 부여해요. 1년 미만은 1개월 개근마다 1일이 생겨요.
             </p>
           </Row>
 
-          <Row no={7} title="사회보험 적용">
-            <div className={styles.checkRow} role="group" aria-label="사회보험">
+          <Row no={7} title="사회보험 적용" section="insurance" items={bySection('insurance')}>
+            <div
+              className={cx(styles.checkRow, groupTone('insurance'))}
+              role="group"
+              aria-label="사회보험"
+              data-field="insurance"
+            >
               {INSURANCE.map((name) => (
                 <label key={name} className={styles.check}>
                   <input
@@ -426,15 +560,20 @@ export function ContractForm({
                 </label>
               ))}
             </div>
-            <Findings items={bySection('insurance')} />
+            {note('insurance')}
           </Row>
 
           <Row
             no={8}
             title="계약서 교부와 서명"
+            section="copy"
+            items={bySection('copy')}
             hint="사업주와 근로자가 각각 서명하고 근로자가 한 부를 받아요. 이름과 날짜는 선택 항목이며, 적으면 미리보기와 PDF에 들어가요."
           >
-            <label className={styles.check}>
+            <label
+              className={cx(styles.check, groupTone('copyProvided'))}
+              data-field="copyProvided"
+            >
               <input
                 type="checkbox"
                 checked={draft.copyProvided}
@@ -442,6 +581,7 @@ export function ContractForm({
               />
               계약 체결 시 근로자에게 계약서 사본을 교부해요
             </label>
+            {note('copyProvided')}
             <div className={styles.grid}>
               <label>
                 사업체명 (선택)
@@ -473,11 +613,10 @@ export function ContractForm({
                 />
               </label>
             </div>
-            <Findings items={bySection('copy')} />
           </Row>
         </div>
 
-        <section className={styles.confirm}>
+        <section id="row-confirm" className={styles.confirm}>
           <h3>서명 전에 직접 확인할 것</h3>
           <ul className={styles.confirmList}>
             {CONFIRMATIONS.map((item) => (
@@ -534,11 +673,13 @@ export function ContractForm({
             .filter((f) => f.tone === 'danger' || f.tone === 'warning')
             .map((f) => (
               <li key={f.title}>
-                <small>
-                  <span className={styles[f.tone]}>{TONE_LABEL[f.tone]}</span> ·{' '}
-                  {SECTION_TITLES[f.section]}
-                </small>
-                <span>{f.title}</span>
+                <a href={`#row-${f.section}`}>
+                  <small>
+                    <span className={styles[f.tone]}>{TONE_LABEL[f.tone]}</span> ·{' '}
+                    {SECTION_TITLES[f.section]}
+                  </small>
+                  <span>{f.title}</span>
+                </a>
               </li>
             ))}
           {summary.danger + summary.warning === 0 && (
