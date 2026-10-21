@@ -1,9 +1,8 @@
 .answerCard {
   overflow: hidden;
   border: 1px solid var(--line);
-  border-radius: 4px 16px 16px 16px;
+  border-radius: var(--radius);
   background: white;
-  box-shadow: 0 6px 18px rgba(29, 61, 49, 0.05);
   font-size: 15px;
   line-height: 1.65;
 }
@@ -48,8 +47,8 @@
 }
 
 .sectionTitle {
-  margin: 0 0 8px;
-  color: var(--green-deep);
+  margin: 0 0 6px;
+  color: var(--ink);
   font-size: 15px;
   font-weight: 700;
 }
@@ -100,8 +99,8 @@
   grid-template-columns: 24px 1fr;
   gap: 10px;
   padding: 10px 12px;
-  border-radius: 10px;
-  background: #f4f8f5;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
 }
 
 .conditions li.unknown {
@@ -138,8 +137,8 @@
 .followUp {
   margin: 14px 16px 0;
   padding: 12px 14px;
-  border-left: 3px solid var(--yellow);
-  border-radius: 0 10px 10px 0;
+  border: 1px solid #ecdfba;
+  border-radius: var(--radius-sm);
   background: #fcf8ed;
 }
 
@@ -166,7 +165,7 @@
   display: inline-flex;
   align-items: center;
   border: 1px solid #ddd2ad;
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   color: #5d543c;
   background: white;
   font-size: 14px;
@@ -212,6 +211,27 @@ summary.sourcesTitle::-webkit-details-marker {
   display: none;
 }
 
+/* 접힌 목록임을 알 수 있게 오른쪽에 펼치기 표시를 둔다. */
+summary.sourcesTitle::after {
+  content: '펼치기 ▾';
+  color: var(--subtle);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+[open] > summary.sourcesTitle::after {
+  content: '접기 ▴';
+}
+
+/* 예전 답변 카드는 화살표 아이콘을 따로 넣으므로 글자 표시는 뺀다. */
+summary.sourcesTitle:has(.chevron)::after {
+  content: none;
+}
+
+summary.sourcesTitle:hover {
+  background: var(--surface);
+}
+
 .chevron {
   color: #89948e;
   transition: transform 0.2s;
@@ -230,15 +250,10 @@ summary.sourcesTitle::-webkit-details-marker {
 }
 
 .sourceNumber {
-  width: 22px;
-  height: 22px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  color: white;
-  background: var(--green);
-  font-size: 12px;
+  color: var(--subtle);
+  font-size: 13px;
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 .source div {

@@ -2,8 +2,8 @@
   display: grid;
   gap: 12px;
   padding: 16px;
-  border: 1px solid #d9e2dc;
-  border-radius: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
   background: white;
 }
 
@@ -13,66 +13,93 @@
 
 .lead {
   margin: 0;
-  color: #4b5a52;
-  font-size: 13px;
-  line-height: 1.55;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.6;
 }
+
+/* ───── 추가 질문 ───── */
 
 .questions {
   display: grid;
-  gap: 12px;
+  gap: 14px;
   margin: 0;
   padding-left: 20px;
 }
 
 .questions p {
-  margin: 0 0 6px;
-  font-size: 14px;
-  line-height: 1.5;
+  margin: 0 0 8px;
+  font-size: 14.5px;
+  line-height: 1.55;
 }
 
 .choices {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
 }
 
+/* 예 · 아니요 · 모름을 이어 붙인 칸으로 */
 .choices button {
   min-width: 64px;
-  padding: 7px 12px;
-  border: 1px solid #c9d6ce;
-  border-radius: 999px;
-  color: #2f4a3c;
-  background: #f6f9f7;
+  min-height: 40px;
+  margin-right: -9px;
+  padding: 0 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 0;
+  color: var(--ink);
+  background: white;
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
   cursor: pointer;
 }
 
+.choices button:first-child {
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+}
+
+.choices button:nth-child(3) {
+  margin-right: 0;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.choices button:hover:not(:disabled) {
+  background: var(--surface);
+}
+
 .choices button.isChosen {
-  border-color: #2e7d4f;
+  position: relative;
+  border-color: var(--green);
   color: white;
-  background: #2e7d4f;
+  background: var(--green);
+  font-weight: 600;
 }
 
 .choices button:disabled {
   cursor: default;
-  opacity: 0.7;
+  opacity: 0.6;
 }
 
 .note {
   display: grid;
   gap: 4px;
   font-size: 13px;
-  color: #4b5a52;
+  color: var(--muted);
 }
 
 .note input {
-  padding: 8px 10px;
-  border: 1px solid #c9d6ce;
-  border-radius: 10px;
+  min-height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
   font: inherit;
   font-size: 14px;
+}
+
+.note input:focus,
+.inlineAnswer:focus {
+  border-color: var(--green);
+  outline: 0;
 }
 
 .actions {
@@ -83,23 +110,33 @@
 
 .primary,
 .secondary {
-  padding: 9px 14px;
-  border-radius: 10px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: var(--radius-sm);
   font: inherit;
   font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
 }
 
 .primary {
-  border: 0;
+  border: 1px solid var(--green);
   color: white;
-  background: #2e7d4f;
+  background: var(--green);
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--green-deep);
 }
 
 .secondary {
-  border: 1px solid #c9d6ce;
-  color: #2f4a3c;
+  border: 1px solid var(--line-strong);
+  color: var(--ink);
   background: white;
+}
+
+.secondary:hover:not(:disabled) {
+  border-color: var(--ink);
 }
 
 .primary:disabled,
@@ -108,35 +145,39 @@
   opacity: 0.6;
 }
 
+/* ───── 판정 결과 머리: 색은 결론에만 ───── */
+
 .verdict {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
   padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
 }
 
 .verdict strong {
-  font-size: 16px;
+  font-size: 17px;
 }
 
 .isViolation {
   color: #8a2a1f;
-  background: #fbeceb;
+  background: #fbefed;
 }
 
 .isLawful {
-  color: #1f5a37;
-  background: #e8f4ec;
+  color: #1d5236;
+  background: #edf4ef;
 }
 
 .assumption {
   padding: 10px 12px;
-  border-radius: 10px;
+  border: 1px solid #ecdfba;
+  border-radius: var(--radius-sm);
   color: #5b4a1f;
-  background: #fbf5e6;
+  background: #fcf8ec;
   font-size: 13px;
-  line-height: 1.55;
+  line-height: 1.6;
 }
 
 .assumption p {
@@ -154,7 +195,7 @@
 }
 
 .checklist small {
-  color: #4b5a52;
+  color: var(--muted);
   font-size: 12px;
 }
 
@@ -162,10 +203,9 @@
   flex: none;
   padding: 2px 8px;
   border: 1px solid currentColor;
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   font-size: 12px;
   font-weight: 600;
-  opacity: 0.85;
 }
 
 .meta {
@@ -173,10 +213,9 @@
   gap: 4px;
   padding: 12px 16px;
   border-bottom: 1px solid var(--line);
-  color: #4b5a52;
-  background: #f7faf8;
+  color: var(--muted);
   font-size: 13px;
-  line-height: 1.55;
+  line-height: 1.6;
 }
 
 .meta p {
@@ -185,12 +224,14 @@
 
 .meta b {
   margin-right: 6px;
-  color: var(--green-deep);
+  color: var(--ink);
   font-weight: 600;
 }
 
 .inCard {
   margin: 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
   border-radius: 0;
   padding: 12px 16px;
 }
@@ -198,18 +239,20 @@
 .inlineAnswer {
   flex: 1 1 160px;
   min-width: 0;
-  padding: 7px 12px;
-  border: 1px solid #c9d6ce;
-  border-radius: 999px;
+  min-height: 40px;
+  margin-left: 4px;
+  padding: 0 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .sentList {
   display: grid;
-  gap: 6px;
   margin: 0;
   padding: 0;
+  border-top: 1px solid var(--line);
   list-style: none;
 }
 
@@ -218,23 +261,24 @@
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 4px 12px;
-  padding: 8px 10px;
-  border-radius: 10px;
-  background: #f6f9f7;
-  font-size: 13px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 13.5px;
   line-height: 1.5;
 }
 
 .sentList strong {
-  color: var(--green-deep);
+  color: var(--ink);
 }
+
+/* ───── 기다리는 동안 ───── */
 
 .pending {
   display: grid;
   gap: 6px;
   padding: 14px 16px;
   border: 1px solid var(--line);
-  border-radius: 4px 16px 16px 16px;
+  border-radius: var(--radius);
   background: white;
 }
 
@@ -258,8 +302,8 @@
 }
 
 .pendingDots i {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   background: var(--green);
   animation: pendingPulse 1.2s ease-in-out infinite;
@@ -278,11 +322,9 @@
   80%,
   100% {
     opacity: 0.25;
-    transform: scale(0.8);
   }
   40% {
     opacity: 1;
-    transform: scale(1);
   }
 }
 

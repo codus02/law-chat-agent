@@ -7,7 +7,7 @@
   height: 100dvh;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  background: #f7f9f7;
+  background: white;
 }
 
 /* ───────── 상담 기록 (데스크톱) ───────── */
@@ -23,31 +23,32 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  margin-bottom: 28px;
-  border: 1px solid #b9cec0;
-  border-radius: 10px;
-  color: var(--green);
+  margin-bottom: 24px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
   background: white;
   font-size: 14px;
   font-weight: 700;
 }
 
+.newChat:hover {
+  border-color: var(--ink);
+}
+
 .historyLabel {
-  margin: 0 10px 8px;
-  color: #91a098;
+  margin: 0 4px 8px;
+  color: var(--subtle);
   font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  font-weight: 600;
 }
 
 .historyCategory {
   display: flex;
   flex-direction: column;
   margin: 0 0 10px;
-  padding: 10px 12px;
-  border: 1px solid #cfdcd4;
-  border-radius: 10px;
-  background: var(--green-pale);
+  padding: 0 4px 10px;
+  border-bottom: 1px solid var(--line);
 }
 
 .historyCategory small {
@@ -56,18 +57,22 @@
 }
 
 .historyCategory strong {
-  color: var(--green-deep);
+  color: var(--ink);
   font-size: 14px;
 }
 
 .historyItem {
   width: 100%;
-  padding: 10px 12px;
-  margin-bottom: 4px;
+  padding: 8px 10px;
+  margin-bottom: 2px;
   border: 0;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   background: transparent;
   text-align: left;
+}
+
+.historyItem:hover {
+  background: #eceeed;
 }
 
 .historyItem strong,
@@ -77,6 +82,7 @@
 
 .historyItem strong {
   font-size: 14px;
+  font-weight: 600;
 }
 
 .historyItem small {
@@ -86,8 +92,7 @@
 }
 
 .historyItem.isActive {
-  background: white;
-  box-shadow: 0 3px 12px rgba(29, 62, 48, 0.06);
+  background: #e4e8e6;
 }
 
 /* ───────── 대화 영역 ───────── */
@@ -107,8 +112,7 @@
   gap: 8px;
   padding: 0 8px;
   border-bottom: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(10px);
+  background: white;
 }
 
 .iconButton {
@@ -118,13 +122,14 @@
   display: grid;
   place-items: center;
   border: 0;
-  border-radius: 10px;
-  color: #3f4d46;
+  border-radius: var(--radius-sm);
+  color: var(--muted);
   background: transparent;
 }
 
 .iconButton:hover {
-  background: #f0f4f1;
+  color: var(--ink);
+  background: var(--surface);
 }
 
 .assistantAvatar,
@@ -132,15 +137,15 @@
   display: grid;
   place-items: center;
   flex: 0 0 auto;
-  border-radius: 8px 8px 11px 8px;
+  border-radius: var(--radius-sm);
   color: white;
   background: var(--green);
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .assistantAvatar {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   font-size: 14px;
 }
 
@@ -172,7 +177,7 @@
   margin-right: 5px;
   vertical-align: 1px;
   border-radius: 50%;
-  background: #3da36e;
+  background: #2f9a64;
 }
 
 .messages {
@@ -185,13 +190,13 @@
 
 .message {
   display: flex;
-  margin: 16px 0;
+  margin: 20px 0;
 }
 
 .messageAvatar {
-  width: 30px;
-  height: 30px;
-  margin-right: 8px;
+  width: 28px;
+  height: 28px;
+  margin-right: 10px;
   font-size: 13px;
 }
 
@@ -201,14 +206,11 @@
   min-width: 0;
 }
 
+/* 상담 쪽 말은 말풍선 없이 본문처럼 읽히게 한다. */
 .messageBubble {
-  padding: 12px 14px;
-  border: 1px solid var(--line);
-  border-radius: 4px 16px 16px 16px;
-  background: white;
-  box-shadow: 0 6px 18px rgba(29, 61, 49, 0.04);
+  padding-top: 3px;
   font-size: 15px;
-  line-height: 1.65;
+  line-height: 1.7;
 }
 
 .messageBubble p {
@@ -217,34 +219,34 @@
 
 .introTitle {
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
   font-size: 15px;
 }
 
 .messageBubble .introText {
   color: var(--muted);
-  font-size: 14px;
+  font-size: 14.5px;
 }
 
 .suggestionChips {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 10px;
+  gap: 6px;
+  margin-top: 12px;
 }
 
 .suggestionChips button {
-  min-height: 40px;
+  min-height: 44px;
   padding: 0 14px;
-  border: 1px solid #cfdcd4;
-  border-radius: 999px;
-  color: #3f564b;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
   background: white;
   font-size: 14px;
 }
 
 .suggestionChips button:hover {
-  border-color: #9dbca9;
+  border-color: var(--ink);
 }
 
 /* ───────── 첫 화면: 상담 유형 선택 ───────── */
@@ -252,8 +254,8 @@
 .categoryList {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 8px;
-  margin-top: 10px;
+  gap: 6px;
+  margin-top: 12px;
 }
 
 .categoryButton {
@@ -262,8 +264,8 @@
   gap: 10px;
   min-height: 56px;
   padding: 10px 14px;
-  border: 1px solid #cfdcd4;
-  border-radius: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
   background: white;
   text-align: left;
   transition:
@@ -272,8 +274,8 @@
 }
 
 .categoryButton:hover:not(:disabled) {
-  border-color: #9dbca9;
-  background: #fbfdfb;
+  border-color: var(--line-strong);
+  background: var(--surface);
 }
 
 .categoryButton:disabled {
@@ -310,23 +312,24 @@
   display: grid;
   place-items: center;
   flex: 0 0 auto;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-sm);
   color: white;
   background: var(--green);
 }
 
+/* 내가 보낸 말은 오른쪽 회색 상자 */
 .userMessage {
   justify-content: flex-end;
 }
 
 .userMessage .messageBubble {
   max-width: 85%;
-  border: 0;
-  border-radius: 16px 4px 16px 16px;
-  color: white;
-  background: var(--green);
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  color: var(--ink);
+  background: #eef0ef;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -344,7 +347,7 @@
   width: 14px;
   height: 1px;
   margin: 0 6px;
-  background: #cbd6d0;
+  background: var(--line-strong);
 }
 
 .verificationSteps .done {
@@ -361,31 +364,32 @@
 
 .composerWrap {
   flex: 0 0 auto;
-  padding: 8px var(--gutter) calc(8px + var(--safe-bottom));
+  padding: 10px var(--gutter) calc(8px + var(--safe-bottom));
   border-top: 1px solid var(--line);
-  background: #f7f9f7;
+  background: white;
 }
 
 .composer {
   padding: 8px 8px 8px 14px;
-  border: 1px solid #b8c8be;
-  border-radius: 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
   background: white;
 }
 
 .composer:focus-within {
   border-color: var(--green);
+  box-shadow: 0 0 0 1px var(--green);
 }
 
 .composerHint {
   margin: 2px 0 6px;
-  color: var(--green);
+  color: var(--green-deep);
   font-size: 13px;
   font-weight: 600;
 }
 
 .composer textarea:disabled {
-  cursor: default;
+  cursor: not-allowed;
 }
 
 .composer textarea {
@@ -403,7 +407,7 @@
 }
 
 .composer textarea::placeholder {
-  color: #9aa59f;
+  color: #959e9a;
 }
 
 .composerBottom {
@@ -418,18 +422,23 @@
   align-items: center;
   gap: 4px;
   min-height: 36px;
-  padding: 0 10px;
-  border-radius: 8px;
-  color: #56665e;
-  background: #f1f4f2;
+  padding: 0 8px;
+  border-radius: var(--radius-sm);
+  color: var(--muted);
   font-size: 13px;
   font-weight: 600;
 }
 
+.attachLink:hover {
+  color: var(--ink);
+  background: var(--surface);
+}
+
 .charCount {
   margin-left: auto;
-  color: #9aa39e;
-  font: 500 12px var(--font-latin);
+  color: var(--subtle);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
 }
 
 .sendButton {
@@ -438,14 +447,19 @@
   display: grid;
   place-items: center;
   border: 0;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   color: white;
   background: var(--green);
 }
 
+.sendButton:hover:not(:disabled) {
+  background: var(--green-deep);
+}
+
 .sendButton:disabled {
-  cursor: default;
-  opacity: 0.35;
+  cursor: not-allowed;
+  color: #8b948f;
+  background: #e6e9e7;
 }
 
 .composerNotice {
@@ -482,13 +496,13 @@
 
   .chatHistory {
     display: block;
-    padding: 24px 14px;
+    padding: 24px 12px;
     border-right: 1px solid var(--line);
-    background: #f2f5f2;
+    background: white;
   }
 
   .chatHeader {
-    height: 68px;
+    height: 64px;
     padding: 0 28px;
   }
 

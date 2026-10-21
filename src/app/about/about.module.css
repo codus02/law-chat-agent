@@ -1,25 +1,23 @@
 .aboutPage {
-  background: radial-gradient(circle at 85% 0%, #e1eee4, transparent 40%), var(--paper);
+  background: var(--paper);
 }
 
 .narrow {
   max-width: 880px;
 }
 
-.kickerRow {
-  margin-top: 16px;
+.eyebrow {
+  margin: 16px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .aboutPage h1 {
-  margin: 12px 0 14px;
-  font-size: 30px;
-  line-height: 1.28;
-  letter-spacing: -0.055em;
-}
-
-.aboutPage h1 em {
-  color: var(--green);
-  font-style: normal;
+  margin: 6px 0 14px;
+  font-size: 28px;
+  line-height: 1.3;
+  letter-spacing: -0.035em;
 }
 
 .aboutLead {
@@ -31,13 +29,13 @@
 
 .section {
   scroll-margin-top: calc(var(--app-bar-height) + 16px);
-  margin-top: 36px;
+  margin-top: 40px;
 }
 
 .section h2 {
-  margin: 0 0 12px;
-  font-size: 19px;
-  letter-spacing: -0.04em;
+  margin: 0 0 10px;
+  font-size: 18px;
+  letter-spacing: -0.02em;
 }
 
 .sectionLead {
@@ -46,152 +44,134 @@
   font-size: 14px;
 }
 
+/* ───── 답변을 만드는 과정: 한 상자 안의 번호 단계 ───── */
+
 .pipeline {
   display: grid;
-  gap: 8px;
   padding: 0;
   margin: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
   list-style: none;
 }
 
-.stage {
+.pipeline li {
   display: grid;
-  grid-template-columns: 32px 1fr;
-  grid-template-rows: auto auto;
-  column-gap: 12px;
+  grid-template-columns: 24px 1fr;
+  column-gap: 8px;
   padding: 14px 16px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: white;
 }
 
-.stage span {
+.pipeline li + li {
+  border-top: 1px solid var(--line);
+}
+
+.pipeline span {
   grid-row: 1 / 3;
-  align-self: center;
   color: var(--green);
-  font: 700 14px var(--font-latin);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
-.stage strong {
+.pipeline strong {
   font-size: 15px;
 }
 
-.stage small {
+.pipeline small {
   color: var(--muted);
-  font-size: 13px;
+  font-size: 13.5px;
+  line-height: 1.55;
 }
 
-.stage.accent {
-  border-color: var(--green);
-  color: white;
-  background: var(--green);
-}
+/* ───── 표: 검증 결과·법령 목록 ───── */
 
-.stage.accent span {
-  color: #a8d4ba;
-}
-
-.stage.accent small {
-  color: #cfe2d8;
-}
-
-.lawList {
-  display: grid;
-  gap: 6px;
-  padding: 0;
-  margin: 0;
-  list-style: none;
-}
-
-.lawList li {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 2px 12px;
-  padding: 12px 14px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: white;
-}
-
-.lawList strong {
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  border-top: 1px solid var(--ink);
   font-size: 14px;
 }
 
-.lawList small {
-  color: var(--subtle);
-  font-size: 12px;
+.table th,
+.table td {
+  padding: 10px 12px 10px 0;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
 }
+
+.table thead th {
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.table tbody th {
+  font-weight: 600;
+}
+
+.table td {
+  color: var(--muted);
+}
+
+.table .value {
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.table .date {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ───── 지금 쓸 수 있는 기능 ───── */
 
 .statusList {
   display: grid;
-  gap: 8px;
-  padding: 0;
   margin: 0;
-  list-style: none;
+  border-top: 1px solid var(--ink);
 }
 
-.statusList li {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 12px;
-  align-items: start;
-  padding: 14px 16px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: white;
+.statusList div {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
 }
 
-.statusBadge {
-  padding: 2px 10px;
-  border-radius: 999px;
-  color: #8f640d;
-  background: #fbf3db;
-  font-size: 12px;
+.statusList dt {
+  font-size: 15px;
   font-weight: 700;
 }
 
-.statusBadge.statusLive {
-  color: var(--green);
-  background: var(--green-pale);
-}
-
-.statusList strong {
-  font-size: 15px;
-}
-
-.statusList p {
+.statusList dd {
   margin: 2px 0 0;
   color: var(--muted);
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .note {
-  margin: 14px 0 0;
+  margin: 12px 0 0;
   color: var(--subtle);
-  font-size: 12px;
+  font-size: 12.5px;
   line-height: 1.6;
 }
 
 @media (min-width: 600px) {
   .aboutPage h1 {
-    font-size: 40px;
-  }
-
-  .lawList {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    font-size: 36px;
   }
 }
 
 @media (min-width: 1024px) {
-  .kickerRow {
-    margin-top: 32px;
+  .eyebrow {
+    margin-top: 24px;
   }
 
   .aboutPage h1 {
-    font-size: 48px;
-    line-height: 1.22;
+    font-size: 42px;
+    line-height: 1.25;
   }
 
   .aboutLead {
@@ -204,67 +184,22 @@
   }
 
   .pipeline {
-    grid-template-columns: repeat(4, 1fr);
-  }
-
-  .stage {
-    grid-template-columns: 1fr;
-    min-height: 150px;
-    padding: 22px 18px;
-  }
-
-  .stage span {
-    grid-row: auto;
-    align-self: start;
-    font-size: 12px;
-  }
-
-  .stage strong {
-    margin-top: 26px;
-  }
-}
-
-.results {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  padding: 0;
-  margin: 0 0 12px;
-  list-style: none;
-}
-
-.results li {
-  display: grid;
-  gap: 2px;
-  padding: 16px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: white;
-}
-
-.results strong {
-  color: var(--green);
-  font: 700 26px/1.2 var(--font-latin);
-  letter-spacing: -0.02em;
-}
-
-.results span {
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.results small {
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-@media (min-width: 1024px) {
-  .results {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
-  .results strong {
-    font-size: 30px;
+  .pipeline li {
+    grid-template-columns: 1fr;
+    align-content: start;
+    gap: 4px;
+    padding: 16px;
+  }
+
+  .pipeline li + li {
+    border-top: 0;
+    border-left: 1px solid var(--line);
+  }
+
+  .pipeline span {
+    grid-row: auto;
   }
 }

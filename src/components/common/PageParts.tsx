@@ -40,7 +40,7 @@ export function PageHeading({
   description,
   aside,
 }: {
-  kicker: string;
+  kicker?: string;
   title: string;
   description: string;
   aside?: React.ReactNode;
@@ -48,7 +48,7 @@ export function PageHeading({
   return (
     <div className={styles.pageHeading}>
       <div>
-        <Kicker>{kicker}</Kicker>
+        {kicker && <Kicker>{kicker}</Kicker>}
         <h1>{title}</h1>
         <p>{description}</p>
       </div>

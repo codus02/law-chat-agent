@@ -17,83 +17,67 @@
 
 .eyebrow {
   margin: 0;
-  color: var(--green);
-  font-size: 13px;
-  font-weight: 700;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .hero h1 {
-  margin: 8px 0 0;
+  margin: 6px 0 0;
   font-size: 28px;
-  line-height: 1.28;
-  letter-spacing: -0.055em;
-}
-
-.hero h1 em {
-  color: var(--green);
-  font-style: normal;
+  line-height: 1.3;
+  letter-spacing: -0.035em;
 }
 
 .lead {
-  margin: 10px 0 0;
+  max-width: 60ch;
+  margin: 12px 0 0;
   color: var(--muted);
   font-size: 15px;
-  line-height: 1.65;
+  line-height: 1.7;
 }
 
 /* ───────── 섹션 공통 ───────── */
 
-.entryGrid {
+.homeGrid {
   display: grid;
   gap: 32px;
-  margin-top: 28px;
+  margin-top: 32px;
 }
 
-.sectionHead {
-  margin-bottom: 12px;
-}
-
-.stage {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 999px;
-  color: #4f6b5e;
-  background: #e8f0ea;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.sectionHead h2 {
-  margin: 8px 0 0;
-  font-size: 19px;
+.askSection h2,
+.stepsSection h2,
+.contractCard h2 {
+  margin: 0 0 12px;
+  font-size: 18px;
   line-height: 1.4;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.02em;
+}
+
+.sideColumn {
+  display: grid;
+  align-content: start;
+  gap: 12px;
 }
 
 /* ───────── 바로 상담하기 ───────── */
 
 .questionBox {
-  padding: 14px 14px 12px;
-  border: 1.5px solid #b8c8be;
-  border-radius: 16px;
+  padding: 12px 12px 10px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
   background: white;
-  box-shadow: 0 10px 28px rgba(24, 55, 42, 0.08);
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
 }
 
 .questionBox:focus-within {
   border-color: var(--green);
-  box-shadow:
-    0 0 0 4px rgba(31, 107, 80, 0.1),
-    0 10px 28px rgba(24, 55, 42, 0.08);
+  box-shadow: 0 0 0 1px var(--green);
 }
 
 .questionBox textarea {
   display: block;
   width: 100%;
-  min-height: 78px;
+  min-height: 84px;
   padding: 0;
   border: 0;
   outline: 0;
@@ -101,11 +85,11 @@
   color: var(--ink);
   background: transparent;
   font-size: 16px;
-  line-height: 1.55;
+  line-height: 1.6;
 }
 
 .questionBox textarea::placeholder {
-  color: #9aa59f;
+  color: #959e9a;
 }
 
 .questionFooter {
@@ -131,53 +115,72 @@
   min-height: 44px;
   padding: 0 16px;
   border: 0;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   color: white;
   background: var(--green);
   font-size: 15px;
   font-weight: 700;
 }
 
+.askButton:hover:not(:disabled) {
+  background: var(--green-deep);
+}
+
 .askButton:disabled {
-  cursor: default;
-  opacity: 0.4;
+  cursor: not-allowed;
+  color: #8b948f;
+  background: #e6e9e7;
 }
 
 .privacyNote {
-  margin: 8px 4px 0;
+  margin: 8px 0 0;
   color: var(--subtle);
-  font-size: 12px;
+  font-size: 12.5px;
 }
 
+/* 예시 상황: 누르면 첫 문장을 대신 써 준다. 알약 대신 목록형 버튼. */
 .situations {
-  margin-top: 18px;
+  margin-top: 20px;
 }
 
 .situationsLabel {
   margin: 0 0 8px;
   color: var(--muted);
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
 }
 
 .chip {
-  min-height: 40px;
-  padding: 0 14px;
-  border: 1px solid #cfdcd4;
-  border-radius: 999px;
-  color: #3f564b;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
   background: white;
   font-size: 14px;
+  text-align: left;
+}
+
+.chip::after {
+  content: '›';
+  color: var(--subtle);
+  font-size: 18px;
+  line-height: 1;
 }
 
 .chip:hover {
-  border-color: #9dbca9;
+  border-color: var(--line-strong);
+  background: var(--surface);
 }
 
 .chip.isSelected {
@@ -187,13 +190,24 @@
   font-weight: 600;
 }
 
+.chip.isSelected::after {
+  content: '✓';
+  color: var(--green);
+  font-size: 14px;
+}
+
 /* ───────── 계약 전 점검 ───────── */
 
 .contractCard {
   padding: 18px;
   border: 1px solid var(--line);
-  border-radius: 16px;
-  background: white;
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.contractCard h2 {
+  margin-bottom: 6px;
+  font-size: 16px;
 }
 
 .contractCard > p {
@@ -210,25 +224,15 @@
   margin-top: 14px;
 }
 
-@media (min-width: 600px) {
-  .contractActions {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-.writeAction {
-  grid-column: 1 / -1;
-}
-
 .primaryAction,
 .secondaryAction {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  min-height: 48px;
-  padding: 0 10px;
-  border-radius: 10px;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: var(--radius-sm);
   font-size: 15px;
   font-weight: 700;
 }
@@ -243,74 +247,13 @@
 }
 
 .secondaryAction {
-  border: 1px solid #aec8b8;
-  color: var(--green);
+  border: 1px solid var(--line-strong);
+  color: var(--ink);
   background: white;
 }
 
 .secondaryAction:hover {
-  background: var(--green-pale);
-}
-
-/* ───────── 답변 예시 ───────── */
-
-/* ───────── 세 단계 ───────── */
-
-.askSection,
-.contractSection,
-.stepsSection {
-  margin-top: 32px;
-}
-
-.steps {
-  display: grid;
-  gap: 12px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.steps li {
-  display: grid;
-  grid-template-columns: 34px 1fr;
-  gap: 12px;
-  padding: 14px 16px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: white;
-}
-
-.stepNumber {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  color: white;
-  background: var(--green);
-  font-weight: 800;
-}
-
-.steps strong {
-  display: block;
-  font-size: 15px;
-}
-
-.steps p {
-  margin: 4px 0 0;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-/* ───────── 도움 연결·데이터 기준 ───────── */
-
-.homeFooter {
-  display: grid;
-  gap: 14px;
-  margin-top: 40px;
-  padding-top: 24px;
-  border-top: 1px solid var(--line);
+  border-color: var(--ink);
 }
 
 .hotline {
@@ -319,19 +262,17 @@
   gap: 12px;
   padding: 14px 16px;
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: var(--radius);
   background: white;
 }
 
+.hotline:hover {
+  border-color: var(--line-strong);
+}
+
 .hotlineIcon {
-  width: 40px;
-  height: 40px;
   flex: 0 0 auto;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
   color: var(--green);
-  background: var(--green-pale);
 }
 
 .hotline small,
@@ -341,7 +282,7 @@
 
 .hotline small {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 12.5px;
 }
 
 .hotline strong {
@@ -351,6 +292,57 @@
 .hotlineArrow {
   margin-left: auto;
   color: var(--subtle);
+}
+
+/* ───────── 이렇게 답해요 ───────── */
+
+.stepsSection {
+  margin-top: 40px;
+}
+
+.steps {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--ink);
+  list-style: none;
+}
+
+.steps li {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  column-gap: 8px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.stepNumber {
+  grid-row: 1 / 3;
+  color: var(--green);
+  font-size: 15px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.steps strong {
+  font-size: 15px;
+}
+
+.steps p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ───────── 데이터 기준·고지 ───────── */
+
+.homeFooter {
+  display: grid;
+  gap: 8px;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
 }
 
 /* 글이 여러 줄로 넘어가도 아이콘이 첫 줄 앞에 붙어 있게 인라인으로 둔다. */
@@ -376,27 +368,32 @@
   margin: 0;
   color: var(--subtle);
   font-size: 12px;
-  line-height: 1.55;
+  line-height: 1.6;
 }
 
 /* ───────── 태블릿 ───────── */
 
 @media (min-width: 600px) {
   .homePage {
-    max-width: 680px;
+    max-width: 720px;
     padding-top: 40px;
   }
 
   .hero h1 {
-    font-size: 36px;
+    font-size: 34px;
   }
 
   .lead {
     font-size: 16px;
   }
+
+  .chips,
+  .contractActions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
-/* ───────── 데스크톱 ───────── */
+/* ───────── 데스크톱: 상담(왼쪽) + 계약서·도움 연결(오른쪽) ───────── */
 
 @media (min-width: 1024px) {
   .homePage {
@@ -405,27 +402,31 @@
   }
 
   .hero h1 {
-    font-size: 48px;
-    line-height: 1.2;
+    font-size: 42px;
+    line-height: 1.25;
   }
 
-  .askSection,
-  .contractSection,
-  .stepsSection {
-    margin-top: 48px;
+  .homeGrid {
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 40px;
+    margin-top: 40px;
+  }
+
+  .contractActions {
+    grid-template-columns: 1fr;
   }
 
   .steps {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 32px;
   }
 
-  .homeFooter {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
-    align-items: center;
+  .steps li {
+    border-bottom: 0;
+    padding-top: 16px;
+  }
+
+  .stepsSection {
     margin-top: 56px;
-  }
-
-  .legalNotice {
-    grid-column: 1 / -1;
   }
 }

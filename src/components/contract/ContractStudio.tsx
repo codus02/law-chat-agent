@@ -9,17 +9,9 @@ import styles from './contract-studio.module.css';
 
 export type ContractTab = 'write' | 'upload';
 
-const TABS: { id: ContractTab; label: string; caption: string }[] = [
-  {
-    id: 'write',
-    label: '작성하며 점검',
-    caption: '표준근로계약서 항목을 채우면 조건마다 바로 확인해요',
-  },
-  {
-    id: 'upload',
-    label: '받은 계약서 올리기',
-    caption: 'PDF·DOCX·TXT 또는 붙여넣기로 내용을 읽어 같은 기준으로 점검해요',
-  },
+const TABS: { id: ContractTab; label: string }[] = [
+  { id: 'write', label: '작성하며 점검' },
+  { id: 'upload', label: '받은 계약서 올리기' },
 ];
 
 /**
@@ -57,8 +49,7 @@ export function ContractStudio({ initialTab }: { initialTab: ContractTab }) {
             aria-controls={`contract-panel-${tab.id}`}
             onClick={() => selectTab(tab.id)}
           >
-            <strong>{tab.label}</strong>
-            <small>{tab.caption}</small>
+            {tab.label}
           </button>
         ))}
       </div>

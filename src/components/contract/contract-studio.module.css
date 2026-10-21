@@ -1,117 +1,159 @@
-/* 근로계약서 작성·점검 한 화면. 모바일 우선, 1024px 이상에서 폼 옆에 결과 요약을 고정한다. */
+/*
+ * 근로계약서 작성·점검 한 화면. 종이 표준근로계약서처럼 "항목 | 내용" 한 장으로 보이게 한다.
+ * 모바일 우선, 768px 이상에서 항목명을 왼쪽 열로, 1024px 이상에서 결과 요약을 옆에 고정한다.
+ */
 
 .studio {
-  margin-top: 16px;
+  --rule: var(--line-strong);
+  --rule-soft: var(--line);
+  --label-bg: var(--surface);
+
+  margin-top: 8px;
 }
 
-/* ───── 탭 ───── */
+/* ───── 탭: 밑줄형 ───── */
 
 .tabs {
-  display: grid;
-  gap: 8px;
+  display: flex;
+  gap: 24px;
   margin-bottom: 20px;
+  border-bottom: 1px solid var(--rule);
 }
 
 .tab {
-  display: grid;
-  gap: 2px;
-  padding: 12px 14px;
-  border: 1px solid #cfdcd4;
-  border-radius: 14px;
-  background: white;
-  text-align: left;
-}
-
-.tab strong {
-  font-size: 15px;
-}
-
-.tab small {
+  margin-bottom: -1px;
+  padding: 10px 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
   color: var(--muted);
-  font-size: 13px;
+  background: none;
+  font-size: 15px;
+  font-weight: 600;
 }
 
 .tab.isActive {
-  border-color: var(--green);
-  background: var(--green-pale);
-  box-shadow: inset 0 0 0 1px var(--green);
+  border-bottom-color: var(--ink);
+  color: var(--ink);
 }
 
-/* ───── 폼 ───── */
+/* ───── 레이아웃 ───── */
 
+/* minmax(0, 1fr): 날짜·시간 입력칸의 기본 너비가 화면 밖으로 밀어내지 않게 한다. */
 .formLayout {
   display: grid;
-  gap: 16px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
 }
 
 .form {
   display: grid;
-  gap: 12px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
 }
 
 .importedNote {
   padding: 12px 14px;
-  border: 1px solid #cfe3d6;
-  border-radius: 12px;
-  background: #f1f8f3;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: white;
   font-size: 14px;
   line-height: 1.6;
 }
 
 .importedNote button {
   margin-left: 8px;
-  padding: 2px 10px;
-  border: 1px solid #b9cec0;
-  border-radius: 999px;
-  background: white;
+  padding: 0;
+  border: 0;
+  color: var(--green);
+  background: none;
   font-size: 13px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
-.section {
-  padding: 16px;
-  border: 1px solid var(--line);
-  border-left: 4px solid #d9e3dd;
-  border-radius: 14px;
+/* ───── 서식 한 장 ───── */
+
+.sheet {
+  border: 1px solid var(--rule);
+  border-radius: 4px;
   background: white;
 }
 
-.sectionDanger {
-  border-left-color: var(--danger);
+.sheetHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+  padding: 14px 16px;
+  border-bottom: 2px solid var(--ink);
 }
 
-.sectionWarning {
-  border-left-color: #d9a21b;
+.sheetHead strong {
+  font-size: 17px;
+  letter-spacing: 0.04em;
 }
 
-.sectionOk {
-  border-left-color: var(--green);
+.sheetHead span {
+  color: var(--subtle);
+  font-size: 12px;
 }
 
-.section header {
-  margin-bottom: 10px;
+.row + .row {
+  border-top: 1px solid var(--rule);
 }
 
-.section h3 {
+.rowHead {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--rule-soft);
+  background: var(--label-bg);
+}
+
+.rowHead h3 {
   margin: 0;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
 }
 
-.section header p {
-  margin: 4px 0 0;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.55;
+.rowNo {
+  margin-right: 4px;
+  color: var(--subtle);
+  font-variant-numeric: tabular-nums;
 }
 
-.section header a {
+.rowBody {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  padding: 14px 16px 16px;
+}
+
+.hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.hint a {
   color: var(--green);
   font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
+
+.fixedText {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ───── 입력 ───── */
 
 .grid {
   display: grid;
-  gap: 10px;
+  gap: 12px;
 }
 
 .grid label,
@@ -119,19 +161,22 @@
 .pasteBox {
   display: grid;
   gap: 4px;
-  font-size: 13px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 12.5px;
   font-weight: 600;
-  color: #3f4d46;
 }
 
 .grid input,
 .grid select,
 .dailyHours input,
 .pasteBox textarea {
-  min-height: 42px;
-  padding: 0 12px;
-  border: 1px solid #c3d2c9;
-  border-radius: 10px;
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  padding: 0 10px;
+  border: 1px solid #c9d2cd;
+  border-radius: 4px;
   background: white;
   color: var(--ink);
   font-size: 15px;
@@ -139,7 +184,7 @@
 }
 
 .pasteBox textarea {
-  padding: 10px 12px;
+  padding: 10px;
   line-height: 1.55;
   resize: vertical;
 }
@@ -148,12 +193,12 @@
 .grid select:focus,
 .dailyHours input:focus,
 .pasteBox textarea:focus {
-  border-color: var(--green);
+  border-color: var(--ink);
   outline: 0;
 }
 
 .grid input:disabled {
-  background: #f3f5f4;
+  background: var(--label-bg);
   color: var(--subtle);
 }
 
@@ -161,15 +206,13 @@
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  min-height: 40px;
-  margin-top: 8px;
   font-size: 14px;
 }
 
 .check input {
-  width: 18px;
-  height: 18px;
-  margin-top: 3px;
+  width: 17px;
+  height: 17px;
+  margin: 3px 0 0;
   accent-color: var(--green);
 }
 
@@ -182,145 +225,190 @@
   font-size: 13px;
 }
 
-.chips {
+/* 사회보험: 종이 양식의 "□ 고용보험 □ 산재보험 …" 줄 */
+.checkRow {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px 20px;
 }
 
-.chip {
-  min-width: 40px;
-  min-height: 38px;
-  padding: 0 12px;
-  border: 1px solid #cfdcd4;
-  border-radius: 999px;
+/* 근무 요일: 이어 붙인 칸 */
+.days {
+  display: inline-flex;
+  width: max-content;
+  max-width: 100%;
+}
+
+.days button {
+  width: 42px;
+  height: 38px;
+  margin-left: -1px;
+  border: 1px solid #c9d2cd;
   background: white;
   font-size: 14px;
 }
 
-.chip.isOn {
+.days button:first-child {
+  margin-left: 0;
+  border-radius: 4px 0 0 4px;
+}
+
+.days button:last-child {
+  border-radius: 0 4px 4px 0;
+}
+
+.days button.isOn {
+  position: relative;
   border-color: var(--green);
-  color: var(--green-deep);
-  background: var(--green-pale);
+  color: white;
+  background: var(--green);
   font-weight: 700;
 }
 
 .dailyHours {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
   gap: 8px;
-  margin: 10px 0;
 }
 
 .derived {
-  margin: 10px 0 0;
+  margin: 0;
   color: var(--muted);
   font-size: 13px;
 }
 
 .derived strong {
-  color: var(--green-deep);
+  color: var(--ink);
 }
 
-.confirmList {
-  display: grid;
-  gap: 4px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-/* ───── 점검 항목 ───── */
+/* ───── 점검 항목: 배경 상자 없이 한 줄씩 ───── */
 
 .findings {
   display: grid;
-  gap: 8px;
-  margin: 12px 0 0;
+  margin: 0;
   padding: 0;
+  border-top: 1px dashed var(--rule);
   list-style: none;
 }
 
 .finding {
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: #f4f8f5;
-  font-size: 14px;
+  grid-template-columns: 36px 1fr;
+  gap: 8px;
+  padding: 8px 0;
+  font-size: 13.5px;
+}
+
+.finding + .finding {
+  border-top: 1px dashed var(--rule-soft);
 }
 
 .finding strong {
-  display: block;
-  font-size: 14px;
+  font-size: 13.5px;
 }
 
 .finding p {
-  margin: 2px 0 0;
-  color: #3d4b44;
+  margin: 1px 0 0;
+  color: var(--muted);
   line-height: 1.55;
 }
 
 .finding small {
   display: block;
-  margin-top: 4px;
+  margin-top: 2px;
   color: var(--subtle);
   font-size: 12px;
 }
 
 .findingTone {
-  align-self: start;
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 700;
+  line-height: 1.55;
   white-space: nowrap;
 }
 
-.finding.danger {
-  background: #fbeeeb;
-}
-
 .finding.danger .findingTone {
-  color: white;
-  background: var(--danger);
-}
-
-.finding.warning {
-  background: #fdf7e9;
+  color: var(--danger);
 }
 
 .finding.warning .findingTone {
-  color: #5d4a14;
-  background: var(--yellow);
-}
-
-.finding.info {
-  background: #eef3f8;
+  color: var(--amber);
 }
 
 .finding.info .findingTone {
-  color: #2f4a66;
-  background: #d6e3f1;
-}
-
-.finding.ok {
-  background: var(--green-pale);
+  color: var(--subtle);
 }
 
 .finding.ok .findingTone {
-  color: white;
-  background: var(--green);
+  color: var(--green);
+}
+
+/* ───── 서명 전 확인 ───── */
+
+.confirm {
+  padding: 14px 16px 16px;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: white;
+}
+
+.confirm h3 {
+  margin: 0 0 10px;
+  font-size: 14px;
+}
+
+.confirmList {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ───── 휴대폰·태블릿: 화면 아래에 붙는 점검 개수 ───── */
+
+.mobileSummary {
+  position: sticky;
+  z-index: 5;
+  bottom: calc(var(--tab-bar-height) + var(--safe-bottom) + 8px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 0 16px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: white;
+  box-shadow: var(--shadow);
+  font-size: 14px;
+}
+
+.mobileSummary b {
+  font-variant-numeric: tabular-nums;
+}
+
+.mobileSummary .danger {
+  color: var(--danger);
+}
+
+.mobileSummary .warning {
+  color: var(--amber);
+}
+
+.mobileSummary span + span {
+  color: var(--green);
+  font-weight: 600;
 }
 
 /* ───── 요약 ───── */
 
 .summary {
-  padding: 14px 16px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
+  scroll-margin-top: calc(var(--app-bar-height) + 12px);
+  padding: 16px;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
   background: white;
-  box-shadow: var(--shadow);
 }
 
 .summaryHead {
@@ -340,37 +428,48 @@
 }
 
 .counts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin: 10px 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 12px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
 }
 
-.counts span {
-  padding: 3px 10px;
-  border-radius: 999px;
+.counts div {
+  padding: 8px 0;
+  text-align: center;
+}
+
+.counts div + div {
+  border-left: 1px solid var(--rule-soft);
+}
+
+.counts dt {
+  color: var(--muted);
   font-size: 12px;
+}
+
+.counts dd {
+  margin: 0;
+  font-size: 20px;
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
-.counts .danger {
-  color: #7a2d22;
-  background: #fbeeeb;
+.counts .danger dd {
+  color: var(--danger);
 }
 
-.counts .warning {
-  color: #5d4a14;
-  background: #fdf3d6;
+.counts .warning dd {
+  color: var(--amber);
 }
 
-.counts .ok {
-  color: var(--green-deep);
-  background: var(--green-pale);
+.counts .ok dd {
+  color: var(--green);
 }
 
 .summaryList {
   display: grid;
-  gap: 6px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -378,88 +477,95 @@
 
 .summaryList li {
   display: grid;
-  padding: 8px 10px;
-  border-left: 3px solid #d9e3dd;
-  border-radius: 0 8px 8px 0;
-  background: #f7faf8;
+  padding: 7px 0;
   font-size: 13px;
 }
 
-.summaryList li.danger {
-  border-left-color: var(--danger);
-}
-
-.summaryList li.warning {
-  border-left-color: #d9a21b;
-}
-
-.summaryList li.ok {
-  border-left-color: var(--green);
+.summaryList li + li {
+  border-top: 1px solid var(--rule-soft);
 }
 
 .summaryList small {
   color: var(--subtle);
-  font-size: 11px;
+  font-size: 11.5px;
 }
 
-.previewButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 42px;
-  width: 100%;
-  justify-content: center;
-  margin-top: 12px;
-  border: 1px solid #b9cec0;
-  border-radius: 10px;
-  color: var(--green-deep);
-  background: white;
-  font-size: 14px;
+.summaryList .danger {
+  color: var(--danger);
   font-weight: 700;
 }
 
+.summaryList .warning {
+  color: var(--amber);
+  font-weight: 700;
+}
+
+.previewButton,
 .printButton {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  min-height: 42px;
-  width: 100%;
   justify-content: center;
-  margin-top: 8px;
-  border: 0;
-  border-radius: 10px;
-  color: white;
-  background: var(--green);
+  gap: 6px;
+  width: 100%;
+  min-height: 44px;
+  border-radius: 4px;
   font-size: 14px;
   font-weight: 700;
 }
 
+.previewButton {
+  margin-top: 14px;
+  border: 1px solid var(--line-strong);
+  color: var(--ink);
+  background: white;
+}
+
+.previewButton:hover {
+  border-color: var(--ink);
+}
+
+.printButton {
+  margin-top: 8px;
+  border: 1px solid var(--green);
+  color: white;
+  background: var(--green);
+}
+
+.printButton:hover,
+.applyButton:hover,
+.pasteBox button:hover:not(:disabled) {
+  background: var(--green-deep);
+}
+
 .summaryNote {
-  margin: 10px 0 0;
+  margin: 12px 0 0;
   color: var(--subtle);
   font-size: 12px;
   line-height: 1.6;
 }
 
 .summaryNote a {
-  color: var(--green);
+  color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 /* ───── 미리보기 ───── */
 
 .preview {
   grid-column: 1 / -1;
-  padding: 20px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: #fffdf7;
+  padding: 28px 24px;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  background: white;
   font-size: 14px;
-  line-height: 1.7;
+  line-height: 1.8;
 }
 
 .preview h3 {
-  margin: 0 0 10px;
-  font-size: 17px;
+  margin: 0 0 16px;
+  font-size: 19px;
+  letter-spacing: 0.3em;
   text-align: center;
 }
 
@@ -484,7 +590,7 @@
 
 .uploadIntro h2 {
   margin: 0;
-  font-size: 19px;
+  font-size: 18px;
   letter-spacing: -0.03em;
 }
 
@@ -502,29 +608,25 @@
 
 .dropZone {
   display: grid;
+  align-content: center;
   justify-items: center;
   gap: 6px;
-  padding: 26px 16px;
-  border: 1.5px dashed #b8c8be;
-  border-radius: 16px;
+  padding: 24px 16px;
+  border: 1px dashed #aeb9b3;
+  border-radius: 4px;
   background: white;
   text-align: center;
   cursor: pointer;
 }
 
 .dropZone.isDragging {
-  border-color: var(--green);
-  background: var(--green-pale);
+  border-color: var(--ink);
+  background: var(--label-bg);
 }
 
 .dropIcon {
   display: grid;
-  place-items: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  color: var(--green);
-  background: var(--green-pale);
+  color: var(--muted);
 }
 
 .dropZone strong {
@@ -538,9 +640,9 @@
 }
 
 .pasteBox button {
-  min-height: 42px;
-  border: 0;
-  border-radius: 10px;
+  min-height: 44px;
+  border: 1px solid var(--green);
+  border-radius: 4px;
   color: white;
   background: var(--green);
   font-size: 14px;
@@ -548,22 +650,23 @@
 }
 
 .pasteBox button:disabled {
-  opacity: 0.4;
+  opacity: 0.35;
 }
 
 .uploadError {
   margin: 0;
   padding: 10px 12px;
-  border-left: 3px solid var(--danger);
-  border-radius: 0 10px 10px 0;
-  background: #fbf0ee;
+  border: 1px solid #ecd2cd;
+  border-radius: 4px;
+  color: #7a2d22;
+  background: #fdf5f3;
   font-size: 14px;
 }
 
 .parsed {
   padding: 16px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
   background: white;
 }
 
@@ -587,10 +690,10 @@
 }
 
 .applyButton {
-  min-height: 42px;
+  min-height: 44px;
   padding: 0 16px;
-  border: 0;
-  border-radius: 10px;
+  border: 1px solid var(--green);
+  border-radius: 4px;
   color: white;
   background: var(--green);
   font-size: 14px;
@@ -600,8 +703,8 @@
 .foundList {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 6px 12px;
-  margin: 0;
+  gap: 0 16px;
+  margin: 0 0 12px;
 }
 
 .foundList div {
@@ -609,7 +712,7 @@
   grid-template-columns: 110px 1fr;
   gap: 6px;
   padding: 6px 0;
-  border-bottom: 1px solid #eef2ef;
+  border-bottom: 1px solid var(--rule-soft);
   font-size: 13px;
 }
 
@@ -637,8 +740,9 @@
   max-height: 260px;
   overflow: auto;
   padding: 10px;
-  border-radius: 8px;
-  background: #f4f6f5;
+  border: 1px solid var(--rule-soft);
+  border-radius: 4px;
+  background: var(--label-bg);
   white-space: pre-wrap;
   font-size: 12px;
 }
@@ -646,25 +750,43 @@
 /* ───── 태블릿 이상 ───── */
 
 @media (min-width: 600px) {
-  .tabs,
-  .uploadGrid {
-    grid-template-columns: 1fr 1fr;
+  .uploadGrid,
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* 항목명을 왼쪽 열로: 종이 계약서의 "항목 | 내용" 표 */
+@media (min-width: 768px) {
+  .row {
+    display: grid;
+    grid-template-columns: 168px minmax(0, 1fr);
   }
 
-  .grid {
-    grid-template-columns: 1fr 1fr;
+  .rowHead {
+    padding: 16px;
+    border-right: 1px solid var(--rule);
+    border-bottom: 0;
+  }
+
+  .rowBody {
+    padding: 14px 18px 16px;
   }
 }
 
 @media (min-width: 1024px) {
   .formLayout {
-    grid-template-columns: minmax(0, 1fr) 300px;
+    grid-template-columns: minmax(0, 1fr) 280px;
     align-items: start;
   }
 
   .summary {
     position: sticky;
     top: 24px;
+  }
+
+  .mobileSummary {
+    display: none;
   }
 }
 

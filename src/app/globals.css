@@ -1,21 +1,30 @@
 /*
  * 모바일 우선: 기본 스타일은 휴대폰(360~599px) 기준이고,
  * 600px 이상(태블릿)과 1024px 이상(데스크톱, 사이드바 표시)에서 확장한다.
+ *
+ * 화면 톤: 정부·공공 서식(KRDS, GOV.UK Design System)처럼 흰 바탕, 얇은 선, 작은 모서리.
+ * 색은 의미가 있을 때만 쓴다(초록 = 주요 동작·선택, 빨강 = 위반, 노랑 = 확인 필요).
  */
 :root {
-  --ink: #16241f;
-  --muted: #5f6d66;
-  --subtle: #87938d;
-  --line: #dfe5e1;
-  --paper: #f8faf7;
+  --ink: #17201c;
+  --muted: #5a6560;
+  --subtle: #848e89;
+  --line: #dde2df;
+  --line-strong: #c5cdc9;
+  --paper: #ffffff;
+  --surface: #f5f6f5;
   --white: #fff;
-  --green: #1f6b50;
-  --green-deep: #144b3a;
-  --green-pale: #eaf4ee;
-  --sage: #adcbb7;
-  --yellow: #f2c85b;
-  --danger: #b74c3b;
-  --shadow: 0 18px 46px rgba(22, 57, 43, 0.09);
+  --green: #1d6a4f;
+  --green-deep: #134a37;
+  --green-pale: #edf3ef;
+  --sage: #a9bfb2;
+  --yellow: #e9c46a;
+  --amber: #8a6100;
+  --danger: #b4483a;
+  --shadow: 0 4px 16px rgba(23, 32, 28, 0.12);
+
+  --radius: 6px;
+  --radius-sm: 4px;
 
   --font-sans: var(--font-noto-sans-kr), Pretendard, system-ui, sans-serif;
   --font-latin: var(--font-dm-sans), sans-serif;
@@ -49,7 +58,10 @@ body {
   font-family: var(--font-sans);
   font-size: 15px;
   line-height: 1.6;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
+  /* 한국어는 어절 단위로 줄을 바꾸고, 공백 없는 긴 문자열만 중간에서 끊는다. */
+  word-break: keep-all;
+  overflow-wrap: break-word;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -71,8 +83,9 @@ a {
   text-decoration: none;
 }
 
+/* 키보드 이동 위치가 어느 배경에서도 보이도록 두껍게 둔다. */
 :focus-visible {
-  outline: 2px solid var(--green);
+  outline: 3px solid var(--green);
   outline-offset: 2px;
 }
 

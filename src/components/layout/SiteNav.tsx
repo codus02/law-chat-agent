@@ -56,7 +56,7 @@ export function SiteNav() {
           </span>
           <span className={styles.brandCopy}>
             <strong>{SITE_NAME}</strong>
-            <small>LAW · LABOR · RIGHT</small>
+            <small>알바 노동법 상담</small>
           </span>
         </Link>
 
