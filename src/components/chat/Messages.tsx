@@ -6,7 +6,7 @@ import { ISSUES, type IssueId } from '@/lib/intake';
 import { AnswerCard } from './AnswerCard';
 import type { AnswerResult, JudgeAnswer, JudgeResult } from '@/lib/rag-client';
 import { FactCheckCard } from './FactCheckCard';
-import { FollowUpCard, JudgeAnswerCard } from './JudgeCards';
+import { FollowUpCard, JudgeAnswerCard, PendingStatus } from './JudgeCards';
 import judgeStyles from './judge.module.css';
 import { RagAnswerCard } from './RagAnswerCard';
 import styles from './chat.module.css';
@@ -120,12 +120,15 @@ export function CategoryPromptMessage({
         </div>
       )}
       {category.examples.length > 0 && (
-        <div className={styles.suggestionChips}>
-          {category.examples.map((example) => (
-            <button key={example} type="button" onClick={() => onSelect(example)}>
-              {example}
-            </button>
-          ))}
+        <div className={judgeStyles.checklist}>
+          <small>예시 문장으로 시작해도 돼요.</small>
+          <div className={styles.suggestionChips}>
+            {category.examples.map((example) => (
+              <button key={example} type="button" onClick={() => onSelect(example)}>
+                {example}
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </AssistantMessage>
@@ -260,13 +263,7 @@ export function AnswerMessage({
 export function PendingMessage() {
   return (
     <AssistantMessage>
-      <div className={styles.messageBubble} role="status">
-        <strong className={styles.introTitle}>관련 법령을 찾아 판단하고 있어요.</strong>
-        <p className={styles.introText}>
-          로컬 모델이 판단하고 있어요. 보통 1~3분 걸리고, 첫 질문은 모델을 불러오느라 더 걸릴 수
-          있어요.
-        </p>
-      </div>
+      <PendingStatus />
     </AssistantMessage>
   );
 }

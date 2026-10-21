@@ -110,19 +110,14 @@
 
 .verdict {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 12px 14px;
-  border-radius: 12px;
+  padding: 14px 16px;
 }
 
 .verdict strong {
   font-size: 16px;
-}
-
-.verdict small {
-  font-size: 12px;
 }
 
 .isViolation {
@@ -161,4 +156,145 @@
 .checklist small {
   color: #4b5a52;
   font-size: 12px;
+}
+
+.originBadge {
+  flex: none;
+  padding: 2px 8px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+.meta {
+  display: grid;
+  gap: 4px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  color: #4b5a52;
+  background: #f7faf8;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.meta p {
+  margin: 0;
+}
+
+.meta b {
+  margin-right: 6px;
+  color: var(--green-deep);
+  font-weight: 600;
+}
+
+.inCard {
+  margin: 0;
+  border-radius: 0;
+  padding: 12px 16px;
+}
+
+.inlineAnswer {
+  flex: 1 1 160px;
+  min-width: 0;
+  padding: 7px 12px;
+  border: 1px solid #c9d6ce;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 13px;
+}
+
+.sentList {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sentList li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 12px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #f6f9f7;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.sentList strong {
+  color: var(--green-deep);
+}
+
+.pending {
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 4px 16px 16px 16px;
+  background: white;
+}
+
+.pendingHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+}
+
+.pendingHead small {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.pendingDots {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.pendingDots i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pendingPulse 1.2s ease-in-out infinite;
+}
+
+.pendingDots i:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.pendingDots i:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes pendingPulse {
+  0%,
+  80%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pendingDots i {
+    animation: none;
+    opacity: 0.7;
+  }
+}
+
+/* 판정 카드에서는 위 섹션의 구분선이 이미 있어 빈 띠 없이 붙인다. */
+.flushSources {
+  margin-top: 0;
+  border-top: 0;
 }

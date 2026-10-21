@@ -169,6 +169,8 @@ export type JudgeResult = {
   origin?: 'rule' | 'model';
   /** 규칙 판정에서 글에 없어 기본값으로 본 전제(예: 성인 근로자) */
   assumptions?: string[];
+  /** 규칙 판정이 본 범위(예: 최저임금 액수만). 이 범위 밖의 쟁점은 판단하지 않았다. */
+  scope?: string;
   model: string;
   model_calls: number;
   reference_date: string;
