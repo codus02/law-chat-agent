@@ -205,9 +205,15 @@
 
 .contractActions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 8px;
   margin-top: 14px;
+}
+
+@media (min-width: 600px) {
+  .contractActions {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .writeAction {
@@ -347,14 +353,17 @@
   color: var(--subtle);
 }
 
+/* 글이 여러 줄로 넘어가도 아이콘이 첫 줄 앞에 붙어 있게 인라인으로 둔다. */
 .dataBasis {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
   margin: 0;
   color: var(--muted);
   font-size: 13px;
+  line-height: 1.6;
+}
+
+.dataBasis svg {
+  margin-right: 6px;
+  vertical-align: -3px;
 }
 
 .dataBasis a {

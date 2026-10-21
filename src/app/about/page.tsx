@@ -10,24 +10,41 @@ export const metadata: Metadata = {
 };
 
 const PIPELINE = [
-  { step: '01', title: '질문 분석', caption: '일상어 사연에서 쟁점과 사실 분리' },
-  { step: '02', title: '혼합 검색', caption: 'BM25 + 임베딩으로 조문 찾기' },
-  { step: '03', title: '답변 생성', caption: '찾은 법령 안에서만 답변' },
-  { step: '04', title: '주장 검증', caption: '문장과 근거 원문 재대조', accent: true },
+  { step: '01', title: '상황 읽기', caption: '일상어 사연에서 시급·근무시간 같은 사실을 읽어요' },
+  { step: '02', title: '규칙 점검', caption: '계산할 수 있는 문제는 고정한 법령 원문으로 바로 계산' },
+  { step: '03', title: '추가 질문', caption: '결론을 바꿀 사실이 빠졌을 때만 한 번' },
+  {
+    step: '04',
+    title: 'AI 판정',
+    caption: '미세조정한 Gemma 3 4B가 검색된 법령을 읽고 판단',
+    accent: true,
+  },
 ];
 
 const STATUS = [
   {
-    label: '근로조건 직접 점검',
+    label: '노동법 상담 판정',
     state: '동작',
-    text: '최저임금·휴게시간 등 기본 규칙으로 바로 확인해요.',
+    text: '모든 질문에 침해인지 아닌지 답하고, 법적 근거와 대응 방법을 함께 보여줘요.',
   },
   {
-    label: '노동법 상담 답변',
-    state: '시연',
-    text: '검색·생성 모델 연결 전이라 예시 답변을 보여줘요.',
+    label: '근로계약서 작성·점검',
+    state: '동작',
+    text: '표준근로계약서 항목을 채우거나 받은 계약서(PDF·DOCX·TXT)를 올리면 브라우저 안에서 읽어 점검해요.',
   },
-  { label: '계약서 분석', state: '시연', text: '문서 인식·분석 연결 전이라 예시 결과를 보여줘요.' },
+  {
+    label: '법령 현행성 확인',
+    state: '동작',
+    text: '판정에 쓰는 조문이 지금 시행 중인 법령과 같은지 매일 국가법령정보센터에서 확인해요.',
+  },
+];
+
+/** 5-fold 교차검증 결과 (전문가 검수 사례 중 정답이 침해·침해 아님인 94건, 규칙 점검 + AI 판정) */
+const RESULTS = [
+  { value: '88.3%', label: '판정 정확도', note: '학습 전 모델 78.7%' },
+  { value: '0.81', label: 'macro-F1', note: '학습 전 0.44' },
+  { value: '89.9%', label: '침해 판정 정밀도', note: '"침해"라고 한 것 중 실제 침해' },
+  { value: '0.5초', label: '규칙 점검 응답', note: 'AI 판정은 노트북에서 약 3분' },
 ];
 
 export default function AboutPage() {
@@ -44,9 +61,10 @@ export default function AboutPage() {
           <em>답을 믿을 수 있게.</em>
         </h1>
         <p className={styles.aboutLead}>
-          로바로는 법률 용어나 질문 작성법을 몰라도 알바생이 자신의 상황에 맞는 법 조문과 다음
-          행동을 확인하도록 돕는 연구용 프로토타입입니다. 검색·재정렬·주장 단위 검증이 노동법 답변의
-          신뢰성을 얼마나 높이는지 함께 연구합니다.
+          로바로는 법률 용어나 질문 작성법을 몰라도 알바생이 자신의 상황이 법에 맞는지 바로
+          확인하도록 돕는 연구용 프로토타입입니다. 계산할 수 있는 문제는 규칙으로, 나머지는 노동
+          상담 사례로 미세조정한 로컬 AI 모델로 판단하고, 모든 판단에 법적 근거와 대응 방법을
+          붙입니다. 외부 AI API 없이 노트북 안에서 돌아가요.
         </p>
 
         <section className={styles.section} aria-labelledby="pipeline-title">
@@ -60,6 +78,27 @@ export default function AboutPage() {
               </li>
             ))}
           </ol>
+        </section>
+
+        <section className={styles.section} id="results" aria-labelledby="results-title">
+          <h2 id="results-title">검증 결과</h2>
+          <p className={styles.sectionLead}>
+            전문가가 검수한 알바 상담 사례로 5-fold 교차검증한 값이에요.
+          </p>
+          <ul className={styles.results}>
+            {RESULTS.map((item) => (
+              <li key={item.label}>
+                <strong>{item.value}</strong>
+                <span>{item.label}</span>
+                <small>{item.note}</small>
+              </li>
+            ))}
+          </ul>
+          <p className={styles.note}>
+            정답이 침해·침해 아님인 94건 기준이에요. 같은 사례를 다른 묶음의 학습에도 썼기 때문에
+            처음 보는 질문에서는 이보다 낮을 수 있어요. 정답의 79%가 &quot;침해&quot;라서 정확도와
+            함께 두 판정을 고르게 보는 macro-F1을 봐요.
+          </p>
         </section>
 
         <section className={styles.section} id="data" aria-labelledby="data-title">
